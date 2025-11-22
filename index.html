@@ -210,7 +210,7 @@ footer {
 /* ============================
    CONFIG
 =============================*/
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz3EO9cVTa_7ATCS2VsoAqKo_ylo9IZT-a40kb78_1m_ry2SK9LCy7EFNbnMYa6klxZIg/exec " ; // <<< EDITA ESTO
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz3EO9cVTa_7ATCS2VsoAqKo_ylo9IZT-a40kb78_1m_ry2SK9LCy7EFNbnMYa6klxZIg/exec";
 
 /* ============================
    VARIABLES
@@ -317,11 +317,15 @@ function launchConfetti() {
 =============================*/
 async function sendToSheet(name, time) {
   try {
-    await fetch( "  https://script.google.com/macros/s/AKfycbz3EO9cVTa_7ATCS2VsoAqKo_ylo9IZT-a40kb78_1m_ry2SK9LCy7EFNbnMYa6klxZIg/exec ", {
+    const res = await fetch(WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, time })
     });
+
+    const txt = await res.text();
+    console.log("Respuesta Apps Script:", txt);
+
   } catch(e) {
     console.error("Error enviando datos", e);
   }
