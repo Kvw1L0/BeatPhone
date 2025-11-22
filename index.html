@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>Rock Challenge</title>
+<title>Veltis Rock Challenge</title>
 
 <style>
 :root {
@@ -317,7 +317,7 @@ function launchConfetti() {
 =============================*/
 async function sendToSheet(name, time) {
   try {
-    await fetch( https://script.google.com/macros/s/AKfycbyq9tNDPeyELN_FOt_bASUx12LfISlurJPtMIlL4M3Id4LbLUBaiwNn0BsFw0sxPuvFtw/exec, {
+    await fetch( "https://script.google.com/macros/s/AKfycbyq9tNDPeyELN_FOt_bASUx12LfISlurJPtMIlL4M3Id4LbLUBaiwNn0BsFw0sxPuvFtw/exec", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, time })
