@@ -210,7 +210,7 @@ footer {
 /* ============================
    CONFIG
 =============================*/
-const WEBHOOK_URL =  "https://script.google.com/macros/s/AKfycbyq9tNDPeyELN_FOt_bASUx12LfISlurJPtMIlL4M3Id4LbLUBaiwNn0BsFw0sxPuvFtw/exec" ; // <<< EDITA ESTO
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz3EO9cVTa_7ATCS2VsoAqKo_ylo9IZT-a40kb78_1m_ry2SK9LCy7EFNbnMYa6klxZIg/exec " ; // <<< EDITA ESTO
 
 /* ============================
    VARIABLES
@@ -317,7 +317,7 @@ function launchConfetti() {
 =============================*/
 async function sendToSheet(name, time) {
   try {
-    await fetch( "https://script.google.com/macros/s/AKfycbyq9tNDPeyELN_FOt_bASUx12LfISlurJPtMIlL4M3Id4LbLUBaiwNn0BsFw0sxPuvFtw/exec", {
+    await fetch( "  https://script.google.com/macros/s/AKfycbz3EO9cVTa_7ATCS2VsoAqKo_ylo9IZT-a40kb78_1m_ry2SK9LCy7EFNbnMYa6klxZIg/exec ", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, time })
