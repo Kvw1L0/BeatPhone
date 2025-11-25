@@ -33,7 +33,7 @@ body {
   background-size: cover;
 }
 
-/* --- OVERLAYS --- */
+/* --- OVERLAY --- */
 .overlay {
   position: fixed;
   top: 0;
@@ -48,29 +48,14 @@ body {
   justify-content: center;
   align-items: center;
   padding: 25px;
-  box-sizing: border-box;
-  transition: opacity 0.5s ease-out;
   opacity: 1;
   pointer-events: auto;
+  transition: opacity 0.5s ease-out;
 }
 
 .overlay.hidden {
   opacity: 0;
   pointer-events: none;
-}
-
-.overlay-content {
-  max-width: 450px;
-}
-
-.overlay-content h2 {
-  font-size: 28px;
-  color: var(--amber);
-}
-
-.overlay-content p {
-  font-size: 18px;
-  line-height: 1.6;
 }
 
 #startButton {
@@ -122,7 +107,6 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-grow: 1;
 }
 
 .music-note-container {
@@ -138,9 +122,8 @@ body {
 }
 
 footer {
-  width: 100%;
-  font-size: 12px;
   opacity: 0.4;
+  font-size: 12px;
   padding: 10px 0;
 }
 
@@ -158,19 +141,15 @@ footer {
 
 <body>
 
-<!-- OVERLAY DE INICIO -->
+<!-- OVERLAY INICIO -->
 <div id="overlay-start" class="overlay">
-  <div class="overlay-content">
-    <h2>¡VELTIS Rock Challenge! ⚡</h2>
-    <p>Agita tu celular lo más rápido que puedas para cargar de energía la nota musical.</p>
+  <h2>¡VELTIS Rock Challenge! ⚡</h2>
+  <p>Agita tu celular lo más rápido que puedas para cargar la nota musical.</p>
 
-    <input id="playerName"
-      type="text"
-      placeholder="Tu nombre"
-      style="margin-top:15px;padding:12px;width:80%;font-size:18px;border-radius:8px;border:none;">
+  <input id="playerName" type="text" placeholder="Tu nombre"
+    style="margin-top:15px;padding:12px;width:80%;font-size:18px;border-radius:8px;border:none;">
 
-    <button id="startButton">¡Comenzar!</button>
-  </div>
+  <button id="startButton">¡Comenzar!</button>
 </div>
 
 <!-- RESULTADOS -->
@@ -207,14 +186,10 @@ footer {
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
-/* ============================
-   CONFIG
-=============================*/
+/* ============================ CONFIG ============================*/
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1L8YuwCr-anYzoJSvVXVvSuuLFgFWbHnoFUW9C_sJe-jnMrq_b-K6DpzziY-2dLtq/exec";
 
-/* ============================
-   VARIABLES
-=============================*/
+/* ============================ VARIABLES ============================*/
 const DOM = {
   overlayStart: document.getElementById("overlay-start"),
   overlayResults: document.getElementById("overlay-results"),
@@ -235,12 +210,10 @@ const GameState = {
   targetBeats: 600,
   isGameActive: false,
   startTime: 0,
-  confettiLauncher: confetti.create(DOM.canvas, { resize: true, useWorker: true }),
+  confettiLauncher: confetti.create(DOM.canvas, { resize: true, useWorker: true })
 };
 
-/* ============================
-   SENSOR
-=============================*/
+/* ============================ SENSORES ============================*/
 function vibrate(p) {
   if (navigator.vibrate) navigator.vibrate(p);
 }
@@ -266,9 +239,7 @@ function handleMotion(event) {
   }
 }
 
-/* ============================
-   FINAL
-=============================*/
+/* ============================ FINAL ============================*/
 function endGame() {
   GameState.isGameActive = false;
   window.removeEventListener("devicemotion", handleMotion);
@@ -283,18 +254,10 @@ function endGame() {
   vibrate([200, 100, 200]);
   launchConfetti();
 
-  // 🔒 Seguridad: si playerName se pierde por alguna razón, lo rescatamos del input
-  const safeName =
-    playerName ||
-    (DOM.inputName?.value?.trim() || "SIN_NOMBRE");
-
-  // 🔥 Llamada 100% segura
-  sendToSheet(safeName, finalTime);
+  sendToSheet(playerName || "SIN_NOMBRE", finalTime);
 }
 
-/* ============================
-   CONFETTI
-=============================*/
+/* ============================ CONFETTI ============================*/
 function launchConfetti() {
   const end = Date.now() + 2500;
 
@@ -318,63 +281,44 @@ function launchConfetti() {
   frame();
 }
 
-/* ============================
-   ENVIAR A GOOGLE SHEETS
-=============================*/
+/* ============================ GOOGLE SHEETS ============================*/
 async function sendToSheet(name, time) {
   try {
     const res = await fetch(WEBHOOK_URL, {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json" 
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, time })
     });
 
-    const txt = await res.text();
-    console.log("Respuesta Apps Script:", txt);
-
-  } catch(e) {
-    console.error("Error enviando datos", e);
+    console.log(await res.text());
+  } catch (e) {
+    console.error("Error enviando datos:", e);
   }
 }
 
+/* ============================ JUEGO ============================*/
+function initializeGame() {
+  GameState.isGameActive = true;
+  GameState.startTime = Date.now();
+  GameState.beats = 0;
 
+  DOM.fillStop1.setAttribute("offset", "0%");
+  DOM.fillStop2.setAttribute("offset", "0%");
 
-/* ============================
-   FLUJO DEL JUEGO
-=============================*/
-function startGame() {
-  const nameInput = DOM.inputName.value.trim();
+  window.addEventListener("devicemotion", handleMotion);
+
+  vibrate(100);
+}
+
+async function startGame() {
+  const nameInput = DOM.nameInput.value.trim();
 
   if (!nameInput) {
     alert("Escribe tu nombre primero 😉");
     return;
   }
 
-  // Guardamos el nombre globalmente
   playerName = nameInput;
-
-  // Ocultamos overlay inicial
-  DOM.overlayStart.classList.add("hidden");
-
-  initializeGame();
-}
-
-function initializeGame() {
-  GameState.isGameActive = true;
-  GameState.startTime = Date.now();
-  GameState.beatCount = 0; 
-
-  // Reset visual del contador
-  DOM.counterDisplay.innerText = "0";
-
-  // Activamos el sensor
-  window.addEventListener("devicemotion", handleMotion);
-
-  // Si quieres vibra:
-  vibrate(100);
-}
 
   DOM.overlayStart.classList.add("hidden");
   DOM.gameArea.style.display = "flex";
@@ -382,23 +326,23 @@ function initializeGame() {
   if (typeof DeviceMotionEvent.requestPermission === "function") {
     try {
       const permission = await DeviceMotionEvent.requestPermission();
-      if (permission === "granted") {
-        window.addEventListener("devicemotion", handleMotion);
-        startGame();
-      } else {
-        alert("Debes permitir acceso al sensor de movimiento.");
+      if (permission !== "granted") {
+        alert("Debes permitir acceso al movimiento para jugar.");
+        return;
       }
     } catch {
       alert("Error solicitando permisos.");
+      return;
     }
-  } else {
-    window.addEventListener("devicemotion", handleMotion);
-    startGame();
   }
+
+  initializeGame();
 }
 
-DOM.startButton.addEventListener("click", initializeGame);
+/* ============================ EVENTO ============================*/
+DOM.startButton.addEventListener("click", startGame);
 </script>
 
 </body>
 </html>
+
