@@ -339,17 +339,36 @@ async function sendToSheet(name, time) {
    FLUJO DEL JUEGO
 =============================*/
 function startGame() {
-  GameState.isGameActive = true;
-  GameState.startTime = Date.now();
-}
+  const nameInput = DOM.inputName.value.trim();
 
-async function initializeGame() {
-  playerName = DOM.nameInput.value.trim();
-
-  if (playerName === "") {
-    alert("Ingresa tu nombre para jugar");
+  if (!nameInput) {
+    alert("Escribe tu nombre primero 😉");
     return;
   }
+
+  // Guardamos el nombre globalmente
+  playerName = nameInput;
+
+  // Ocultamos overlay inicial
+  DOM.overlayStart.classList.add("hidden");
+
+  initializeGame();
+}
+
+function initializeGame() {
+  GameState.isGameActive = true;
+  GameState.startTime = Date.now();
+  GameState.beatCount = 0; 
+
+  // Reset visual del contador
+  DOM.counterDisplay.innerText = "0";
+
+  // Activamos el sensor
+  window.addEventListener("devicemotion", handleMotion);
+
+  // Si quieres vibra:
+  vibrate(100);
+}
 
   DOM.overlayStart.classList.add("hidden");
   DOM.gameArea.style.display = "flex";
