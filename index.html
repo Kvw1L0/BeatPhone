@@ -194,7 +194,7 @@ footer {
 
 <script>
 /* ============================ CONFIG ============================*/
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwGeCYeRQNv2LLyDAxqKWwmDzQwwVklOnC50gMq-RqRopuyxNhZsWZfGl1D3txtvrJA/exec";
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzWYVJC4k-X2Ag-lKnfDZbtYcZ439JzATAOND8OeKfenZ8AHknImYPZGaodnqQ8wpJX/exec";
 
 /* ============================ VARIABLES ============================*/
 const DOM = {
@@ -291,11 +291,21 @@ function launchConfetti() {
 /* ============================ GOOGLE SHEETS ============================*/
 async function sendToSheet(name, time) {
   try {
-    const res = await fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, time })
-    });
+    const res = await fetch("WEBHOOK_URL", {
+  method: "POST",
+  body: JSON.stringify({
+    name: "test",
+    time: "12.3"
+  })
+})
+  .then(r => r.json())
+  .then(data => {
+    console.log("Respuesta:", data);
+  })
+  .catch(err => {
+    console.error("Error:", err);
+  });
+
 
     console.log(await res.text());
   } catch (e) {
