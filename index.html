@@ -275,15 +275,21 @@ function endGame() {
 
   const finalTime = ((Date.now() - GameState.startTime) / 1000).toFixed(2);
 
-  DOM.finalMessageDisplay.innerText = "¡Rockeaste en";
-  DOM.finalTimeDisplay.innerText = finalTime + "s!";
+  DOM.finalMessageDisplay.innerText = "¡Rockeaste en!";
+  DOM.finalTimeDisplay.innerText = `${finalTime}s`;
 
   DOM.overlayResults.classList.remove("hidden");
-  vibrate([200,100,200]);
 
+  vibrate([200, 100, 200]);
   launchConfetti();
 
-  sendToSheet(playerName, finalTime);
+  // 🔒 Seguridad: si playerName se pierde por alguna razón, lo rescatamos del input
+  const safeName =
+    playerName ||
+    (DOM.inputName?.value?.trim() || "SIN_NOMBRE");
+
+  // 🔥 Llamada 100% segura
+  sendToSheet(safeName, finalTime);
 }
 
 /* ============================
