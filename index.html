@@ -19,11 +19,11 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--dark-background);
-  background-image: url("fondo.jpg");
+  background-image: url("fondo.jpg"); /* Asegúrate de que esta imagen exista */
   color: white;
   text-align: center;
   overflow: hidden;
-  
+   
   /* FIX de alineación */
   display: flex;
   justify-content: center;
@@ -31,7 +31,7 @@ body {
 
   height: 100vh;
   width: 100vw;
-  padding: 0; /* <--- importantísimo */
+  padding: 0;
   background-size: cover;
   background-position: center;
 }
@@ -52,8 +52,7 @@ body {
   justify-content: center;
   align-items: center;
 
-  padding: 0 !important; /* <--- Quitamos el empuje vertical */
-
+  padding: 0 !important;
   opacity: 1;
   pointer-events: auto;
   transition: opacity 0.5s ease-out;
@@ -148,18 +147,16 @@ footer {
 
 <body>
 
-<!-- OVERLAY INICIO -->
 <div id="overlay-start" class="overlay">
   <h2>¡VELTIS Rock Challenge! ⚡</h2>
   <p>Agita tu celular lo más rápido que puedas para cargar la nota musical.</p>
 
-  <input id="playerName" type="text" placeholder="Tu nombre"
+  <input id="playerName" type="text" placeholder="Tu nombre" 
     style="margin-top:15px;padding:12px;width:80%;font-size:18px;border-radius:8px;border:none;">
 
   <button id="startButton">¡Comenzar!</button>
 </div>
 
-<!-- RESULTADOS -->
 <div id="overlay-results" class="overlay hidden">
   <div class="results-wrapper">
     <p class="final-message" id="final-message"></p>
@@ -194,7 +191,8 @@ footer {
 
 <script>
 /* ============================ CONFIG ============================*/
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzWYVJC4k-X2Ag-lKnfDZbtYcZ439JzATAOND8OeKfenZ8AHknImYPZGaodnqQ8wpJX/exec";
+// 👇 ¡IMPORTANTE! PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT ENTRE LAS COMILLAS 👇
+const WEBHOOK_URL = "TU_NUEVA_URL_DE_EJECUCION_AQUI"; 
 
 /* ============================ VARIABLES ============================*/
 const DOM = {
@@ -231,6 +229,7 @@ function handleMotion(event) {
   const a = event.acceleration;
   const power = Math.abs(a.x||0) + Math.abs(a.y||0) + Math.abs(a.z||0);
 
+  // Umbral de movimiento
   if (power > 20) {
     GameState.beats++;
 
@@ -261,7 +260,36 @@ function endGame() {
   vibrate([200, 100, 200]);
   launchConfetti();
 
+  // Aquí enviamos los datos usando la función corregida
   sendToSheet(playerName || "SIN_NOMBRE", finalTime);
+}
+
+/* ============================ GOOGLE SHEETS (CORREGIDO) ============================*/
+function sendToSheet(name, time) {
+  console.log("Enviando datos...", name, time);
+  
+  if (WEBHOOK_URL.includes("TU_NUEVA_URL")) {
+    console.warn("⚠️ ¡Falta configurar la URL del Webhook!");
+    return;
+  }
+
+  fetch(WEBHOOK_URL, {
+    method: "POST",
+    mode: "no-cors", // Importante para evitar bloqueos de navegador
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: name,
+      time: time
+    })
+  })
+  .then(() => {
+    console.log("✅ Datos enviados (modo no-cors)");
+  })
+  .catch(err => {
+    console.error("❌ Error enviando datos:", err);
+  });
 }
 
 /* ============================ CONFETTI ============================*/
@@ -286,30 +314,6 @@ function launchConfetti() {
   }
 
   frame();
-}
-
-/* ============================ GOOGLE SHEETS ============================*/
-function sendToSheet(name, time) {
-  // 1. Usamos la variable constante WEBHOOK_URL (sin comillas)
-  fetch(WEBHOOK_URL, {
-    method: "POST",
-    // IMPORTANTE: Google Apps Script suele requerir 'no-cors' si no configuraste headers complejos
-    // o 'redirect: follow'. Usaremos 'no-cors' para asegurar que llegue aunque no leamos respuesta.
-    mode: "no-cors", 
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      name: name,
-      time: time
-    })
-  })
-  .then(() => {
-    console.log("Datos enviados a Google Sheets (Modo no-cors)");
-  })
-  .catch(err => {
-    console.error("Error enviando datos:", err);
-  });
 }
 
 /* ============================ JUEGO ============================*/
@@ -339,15 +343,17 @@ async function startGame() {
   DOM.overlayStart.classList.add("hidden");
   DOM.gameArea.style.display = "flex";
 
-  if (typeof DeviceMotionEvent.requestPermission === "function") {
+  // Pedir permisos de sensor en iOS 13+
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === "function") {
     try {
       const permission = await DeviceMotionEvent.requestPermission();
       if (permission !== "granted") {
         alert("Debes permitir acceso al movimiento para jugar.");
         return;
       }
-    } catch {
-      alert("Error solicitando permisos.");
+    } catch (e) {
+      console.error(e);
+      alert("Error solicitando permisos: " + e);
       return;
     }
   }
@@ -361,4 +367,3 @@ DOM.startButton.addEventListener("click", startGame);
 
 </body>
 </html>
-
