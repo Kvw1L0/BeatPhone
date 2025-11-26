@@ -289,20 +289,28 @@ function launchConfetti() {
 }
 
 /* ============================ GOOGLE SHEETS ============================*/
-fetch("WEBHOOK_URL", {
-  method: "POST",
-  body: JSON.stringify({
-    name: "Jugador Test",
-    time: "12.3"
+function sendToSheet(name, time) {
+  // 1. Usamos la variable constante WEBHOOK_URL (sin comillas)
+  fetch(WEBHOOK_URL, {
+    method: "POST",
+    // IMPORTANTE: Google Apps Script suele requerir 'no-cors' si no configuraste headers complejos
+    // o 'redirect: follow'. Usaremos 'no-cors' para asegurar que llegue aunque no leamos respuesta.
+    mode: "no-cors", 
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: name,
+      time: time
+    })
   })
-})
-  .then(r => r.json())
-  .then(data => {
-    console.log("Respuesta del servidor:", data);
+  .then(() => {
+    console.log("Datos enviados a Google Sheets (Modo no-cors)");
   })
   .catch(err => {
-    console.error("Error en el fetch:", err);
+    console.error("Error enviando datos:", err);
   });
+}
 
 /* ============================ JUEGO ============================*/
 function initializeGame() {
