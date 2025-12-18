@@ -1,370 +1,289 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>VELTIS SHAKE IT CHALLENGE </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>¡ Desafío Shake it !</title>
+    <style>
+        /* ================= CONFIGURACIÓN ================= */
+        :root {
+            /* 1. TAMAÑO DEL LOGO */
+            /* Cambia este valor para agrandar o achicar el logo central */
+            --logo-size: 600px; 
 
-<style>
-:root {
-  --sap-blue: #00A1E0;
-  --neon-pink: #FF00FF;
-  --electric-blue: #03DAC6;
-  --dark-background: #1A1A2E;
-  --glow-color: #E0F7FA;
-  --amber: #e2ab23;
-}
+            /* 2. IMAGEN DE FONDO */
+            /* Asegúrate de tener este archivo en la carpeta */
+            --bg-image: url('fondo.jpg'); 
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--dark-background);
-  background-image: ('fondo.jpg');
- 
-  color: white;
-  text-align: center;
-  overflow: hidden;
-   
-  /* FIX de alineación */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+            /* 3. COLORES */
+            --brand-color: #E53935; /* Rojo */
+        }
 
-  height: 100vh;
-  width: 100vw;
-  padding: 0;
-  background-size: cover;
-  background-position: center;
-}
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
 
-/* --- OVERLAY --- */
-.overlay {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(26, 26, 46, 0.95);
-  backdrop-filter: blur(10px);
-  z-index: 10000;
+            /* CONFIGURACIÓN DEL FONDO DE PANTALLA */
+            background-color: #1A1A2E; /* Color de respaldo si falla la imagen */
+            background-image: var(--bg-image);
+            background-size: cover;      /* Cubre toda la pantalla */
+            background-position: center; /* Centrado */
+            background-repeat: no-repeat;
+        }
 
-  /* FIX de centrado real */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+        /* Capa oscura sobre el fondo para que el logo resalte (Opcional) */
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5); /* Oscurece el fondo un 50% */
+            z-index: 0;
+        }
 
-  padding: 0 !important;
-  opacity: 1;
-  pointer-events: auto;
-  transition: opacity 0.5s ease-out;
-}
+        /* --- CONTENEDOR DEL LOGO --- */
+        .logo-wrapper {
+            position: relative;
+            /* AQUÍ SE APLICA EL TAMAÑO CONFIGURADO ARRIBA */
+            width: var(--logo-size);
+            height: var(--logo-size);
+            display: none; /* Se activa con JS */
+            z-index: 10;   /* Por encima del fondo */
+            
+            animation: breathe 3s infinite alternate ease-in-out;
+        }
 
+        /* --- LAS IMÁGENES --- */
+        .logo-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
 
-.overlay.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
+        /* 1. La imagen "Fantasma" (Fondo) */
+        .ghost {
+            opacity: 0.3; /* Un poco más visible para guiar */
+            filter: grayscale(1) brightness(2); /* Blanco y negro brillante */
+            z-index: 1;
+        }
 
-#startButton {
-  margin-top: 20px;
-  padding: 15px 30px;
-  font-size: 20px;
-  font-weight: bold;
-  color: white;
-  background-color: var(--amber);
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: 0 0 15px var(--amber);
-}
+        /* 2. La imagen "Real" (Frente) */
+        .full-color {
+            z-index: 2;
+            opacity: 1;
+            filter: drop-shadow(0 0 15px rgba(229, 57, 53, 0.5)); /* Glow rojo */
+            
+            /* Recorte inicial (100% oculto desde arriba) */
+            clip-path: inset(100% 0 0 0);
+            -webkit-clip-path: inset(100% 0 0 0);
+            
+            transition: clip-path 0.1s linear, -webkit-clip-path 0.1s linear;
+        }
 
-#startButton:active {
-  transform: scale(0.95);
-}
+        /* --- INTERFAZ --- */
+        .overlay {
+            position: fixed; inset: 0;
+            background: rgba(20, 20, 35, 0.95); /* Fondo casi sólido para menús */
+            backdrop-filter: blur(10px);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; z-index: 100;
+            transition: opacity 0.5s; padding: 20px;
+        }
+        .hidden { opacity: 0; pointer-events: none; }
+        
+        h1 { margin-bottom: 10px; font-size: 2rem; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        p { color: #ddd; margin-bottom: 30px; font-size: 1.1rem; }
+        
+        input {
+            padding: 15px; margin-bottom: 20px; font-size: 1.2rem;
+            border-radius: 8px; border: 2px solid #555; background: #222; color: white;
+            width: 80%; max-width: 300px; text-align: center;
+        }
+        
+        button {
+            padding: 15px 50px; font-size: 1.3rem; font-weight: bold;
+            background: var(--brand-color); color: white;
+            border: none; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(229, 57, 53, 0.5);
+            transition: transform 0.1s;
+        }
+        button:active { transform: scale(0.95); }
+        
+        .big-text { font-size: 5rem; margin: 0; font-weight: 900; color: var(--brand-color); text-shadow: 2px 2px 0px white; }
 
-/* RESULTADOS */
-#overlay-results .results-wrapper {
-  transform: scale(0.8);
-  opacity: 0;
-  animation: result-appear 0.6s forwards;
-}
-
-@keyframes result-appear {
-  to { transform: scale(1); opacity: 1; }
-}
-
-.final-message {
-  font-size: 2.8em;
-  font-weight: 700;
-  margin-bottom: 10px;
-  color: var(--amber);
-  text-shadow: 0 0 8px var(--amber), 0 0 15px white;
-}
-
-.final-time-value {
-  font-size: 6em;
-  font-weight: 900;
-  color: var(--amber);
-  -webkit-text-stroke: 2px white;
-  text-shadow: 0 0 10px var(--amber), 0 0 30px var(--neon-pink);
-}
-
-.game-area {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.music-note-container {
-  width: 328px;
-  margin-bottom: 20px;
-  filter: drop-shadow(0 0 8px var(--glow-color));
-  animation: breathing 4s infinite alternate;
-}
-
-@keyframes breathing {
-  from { transform: scale(1); }
-  to { transform: scale(1.03); }
-}
-
-footer {
-  opacity: 0.4;
-  font-size: 12px;
-  padding: 10px 0;
-}
-
-#confetti-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 10001;
-}
-</style>
+        @keyframes breathe { from { transform: scale(1); } to { transform: scale(1.05); } }
+        
+        /* FIX CONFETTI: Asegura que cubra toda la pantalla */
+        #confetti-canvas { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            pointer-events: none; 
+            z-index: 200; 
+        }
+        
+        .tap-hint {
+            position: absolute; bottom: 30px; 
+            color: rgba(255,255,255,0.6); font-size: 0.9rem; 
+            z-index: 20; text-shadow: 0 1px 2px black;
+        }
+    </style>
 </head>
 
 <body>
 
-<div id="overlay-start" class="overlay">
-  <h2>¡VELTIS Shake IT Challenge! ⚡</h2>
-  <p>Agita tu celular lo más rápido que puedas para llenar de energía la nota.</p>
+    <div id="screen-start" class="overlay">
+        <h1>¡Desafío SHAKE IT!</h1>
+        <p>Agita tu celular para cargar de energía el arbol de Navidad.</p>
+        <input type="text" id="player-name" placeholder="Tu Nombre">
+        <button onclick="Game.start()">¡JUGAR!</button>
+    </div>
 
-  <input id="playerName" type="text" placeholder="Tu nombre" 
-    style="margin-top:15px;padding:12px;width:80%;font-size:18px;border-radius:8px;border:none;">
+    <div id="screen-result" class="overlay hidden">
+        <h1>¡Completado!</h1>
+        <p>Tu tiempo fue:</p>
+        <p class="big-text" id="final-time">0.00s</p>
+        <button onclick="location.reload()">Jugar de nuevo</button>
+    </div>
 
-  <button id="startButton">¡Comenzar!</button>
-</div>
+    <div id="game-container" class="logo-wrapper" onclick="Game.simulateShake()">
+        <img src="logo.png" class="logo-img ghost" alt="Logo Fondo">
+        <img src="logo.png" id="full-image" class="logo-img full-color" alt="Logo Color">
+    </div>
 
-<div id="overlay-results" class="overlay hidden">
-  <div class="results-wrapper">
-    <p class="final-message" id="final-message"></p>
-    <h2 class="final-time-value" id="final-time"></h2>
-  </div>
-</div>
+    <p class="tap-hint" id="hint-text" style="display:none">Agita fuerte o toca la pantalla</p>
 
-<canvas id="confetti-canvas"></canvas>
+    <canvas id="confetti-canvas"></canvas>
 
-<div id="gameArea" class="game-area">
-  <div class="music-note-container">
-    <svg id="userQuaver" viewBox="0 0 450 675">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-      <defs>
-        <linearGradient id="fillGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-          <stop id="fillStop1" offset="0%" stop-color="var(--amber)" />
-          <stop id="fillStop2" offset="0%" stop-color="rgba(30,30,30,0.2)" />
-        </linearGradient>
-      </defs>
+    <script>
+        const Config = {
+            webhookUrl: "https://script.google.com/macros/s/AKfycbxDe-9KMaNos7YfBJIJCCiBDTM2yFsM2JXM3GxizRQbyFy-VEfuJjJv0nqlVu_I-nY7Gw/exec", 
+            targetBeats: 1000, // Dificultad (agitar más o menos veces)
+            shakeThreshold: 15 
+        };
 
-      <path d="M 254.2 82.9 C 255.8 82.2 257.6 82.2 259.1 83 C 275.9 91.3 300.3 108.7 319.8 134.2 C 339.4 159.7 354.2 193.6 351 234.7 C 348.1 272.2 361.5 296 379.1 310.8 C 396.9 325.9 419.4 332 434.6 332.9 C 437.1 333.1 439.2 334.9 439.7 337.4 C 440.2 340 438.9 342.5 436.6 343.6 C 416.1 353.2 383.8 361.9 354 356 C 339 353 324.5 346.2 312.6 334 C 300.7 321.7 291.7 304.3 287.1 280.4 C 286.1 275.1 285.1 271.1 284 268.1 C 283.2 265.9 282.5 264.6 282 263.8 C 281.7 264 281.4 264.3 281.1 264.8 C 278.5 268 275.5 274.3 272.1 283.5 C 268.7 292.6 265.2 304 261.7 317.1 C 247.4 369.6 232.3 447.6 221.1 505.9 C 220.7 507.8 220.4 509.7 220 511.6 C 216.3 557.5 169.7 592.2 115 592.2 C 58.1 592.2 9.8 554.5 9.8 505.7 C 9.8 457 58.1 419.3 115 419.3 C 136.6 419.3 156.8 424.7 173.5 433.9 L 251.2 86.8 C 251.5 85.1 252.7 83.7 254.2 82.9 Z"
-        fill="url(#fillGradient)"
-        stroke="var(--glow-color)"
-        stroke-width="8"/>
-    </svg>
-  </div>
-</div>
+        const Game = {
+            active: false,
+            beats: 0,
+            startTime: 0,
+            playerName: "",
 
+            start: async function() {
+                const name = document.getElementById("player-name").value.trim();
+                if(!name) return alert("Por favor escribe tu nombre 😉");
+                
+                // Permisos iOS
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                    try {
+                        const response = await DeviceMotionEvent.requestPermission();
+                        if (response !== 'granted') alert("Permiso denegado. Toca la pantalla para jugar.");
+                    } catch (e) { console.error(e); }
+                }
 
+                this.playerName = name;
+                this.active = true;
+                this.startTime = Date.now();
+                this.beats = 0;
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+                document.getElementById("screen-start").classList.add("hidden");
+                document.getElementById("game-container").style.display = "block";
+                document.getElementById("hint-text").style.display = "block";
+                
+                this.updateVisuals(0);
 
-<script>
-/* ============================ CONFIG ============================*/
-// 👇 ¡IMPORTANTE! PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT ENTRE LAS COMILLAS 👇
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzVTnpCCoLs54928T3FCIFHJy7X-HMg_Lp2oew5NRcKKOBw57c-VgK6PVjufC65uAxt/exec"; 
+                window.addEventListener("devicemotion", (e) => this.handleMotion(e));
+                if(navigator.vibrate) navigator.vibrate(100);
+            },
 
-/* ============================ VARIABLES ============================*/
-const DOM = {
-  overlayStart: document.getElementById("overlay-start"),
-  overlayResults: document.getElementById("overlay-results"),
-  startButton: document.getElementById("startButton"),
-  fillStop1: document.getElementById("fillStop1"),
-  fillStop2: document.getElementById("fillStop2"),
-  finalTimeDisplay: document.getElementById("final-time"),
-  finalMessageDisplay: document.getElementById("final-message"),
-  canvas: document.getElementById("confetti-canvas"),
-  gameArea: document.getElementById("gameArea"),
-  nameInput: document.getElementById("playerName")
-};
+            handleMotion: function(event) {
+                if (!this.active) return;
+                const acc = event.acceleration;
+                const force = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
+                if (force > Config.shakeThreshold) this.addBeat();
+            },
 
-let playerName = "";
+            simulateShake: function() {
+                if (!this.active) return;
+                for(let i=0; i<5; i++) this.addBeat(); 
+            },
 
-const GameState = {
-  beats: 0,
-  targetBeats: 600,
-  isGameActive: false,
-  startTime: 0,
-  confettiLauncher: confetti.create(DOM.canvas, { resize: true, useWorker: true })
-};
+            addBeat: function() {
+                this.beats++;
+                const percentage = Math.min((this.beats / Config.targetBeats) * 100, 100);
+                this.updateVisuals(percentage);
+                if(this.beats % 10 === 0 && navigator.vibrate) navigator.vibrate(20);
+                if (this.beats >= Config.targetBeats) this.finish();
+            },
 
-/* ============================ SENSORES ============================*/
-function vibrate(p) {
-  if (navigator.vibrate) navigator.vibrate(p);
-}
+            updateVisuals: function(percentage) {
+                const clipValue = 100 - percentage;
+                const img = document.getElementById("full-image");
+                img.style.clipPath = `inset(${clipValue}% 0 0 0)`;
+                img.style.webkitClipPath = `inset(${clipValue}% 0 0 0)`;
+            },
 
-function handleMotion(event) {
-  if (!GameState.isGameActive) return;
+            finish: function() {
+                if (!this.active) return;
+                this.active = false;
+                const totalTime = ((Date.now() - this.startTime) / 1000).toFixed(2);
+                
+                document.getElementById("final-time").innerText = `${totalTime}s`;
+                document.getElementById("screen-result").classList.remove("hidden");
+                document.getElementById("hint-text").style.display = "none";
+                
+                // LANZAR CONFETTI ARREGLADO
+                this.launchRainConfetti();
+                
+                if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                this.sendData(totalTime);
+            },
 
-  const a = event.acceleration;
-  const power = Math.abs(a.x||0) + Math.abs(a.y||0) + Math.abs(a.z||0);
+            sendData: function(time) {
+                if(!Config.webhookUrl) return;
+                fetch(Config.webhookUrl, {
+                    method: "POST", mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: this.playerName, time: time })
+                }).catch(console.error);
+            },
 
-  // Umbral de movimiento
-  if (power > 20) {
-    GameState.beats++;
+            // EFECTO LLUVIA DE CONFETTI (MEJORADO)
+            launchRainConfetti: function() {
+                const canvas = document.getElementById('confetti-canvas');
+                const myConfetti = confetti.create(canvas, { resize: true });
+                const duration = 3000;
+                const end = Date.now() + duration;
 
-    const pct = Math.min(GameState.beats / GameState.targetBeats * 100, 100);
-    DOM.fillStop1.setAttribute("offset", pct + "%");
-    DOM.fillStop2.setAttribute("offset", pct + "%");
+                (function frame() {
+                    // Lanza confetti desde posiciones aleatorias arriba
+                    myConfetti({
+                        particleCount: 5,
+                        angle: 270, // Hacia abajo
+                        spread: 180, // Expansión total
+                        origin: { x: Math.random(), y: -0.1 }, // Desde cualquier punto X, arriba de la pantalla (Y < 0)
+                        colors: ['#E53935', '#ffffff', '#FFD700'], // Rojo, Blanco, Dorado
+                        scalar: 1.2 // Un poco más grandes
+                    });
 
-    vibrate(50);
-
-    if (GameState.beats >= GameState.targetBeats) {
-      endGame();
-    }
-  }
-}
-
-/* ============================ FINAL ============================*/
-function endGame() {
-  GameState.isGameActive = false;
-  window.removeEventListener("devicemotion", handleMotion);
-
-  const finalTime = ((Date.now() - GameState.startTime) / 1000).toFixed(2);
-
-  DOM.finalMessageDisplay.innerText = "¡Rockeaste en!";
-  DOM.finalTimeDisplay.innerText = `${finalTime}s`;
-
-  DOM.overlayResults.classList.remove("hidden");
-
-  vibrate([200, 100, 200]);
-  launchConfetti();
-
-  // Aquí enviamos los datos usando la función corregida
-  sendToSheet(playerName || "SIN_NOMBRE", finalTime);
-}
-
-/* ============================ GOOGLE SHEETS (CORREGIDO) ============================*/
-function sendToSheet(name, time) {
-  console.log("Enviando datos...", name, time);
-  
-  if (WEBHOOK_URL.includes("TU_NUEVA_URL")) {
-    console.warn("⚠️ ¡Falta configurar la URL del Webhook!");
-    return;
-  }
-
-  fetch(WEBHOOK_URL, {
-    method: "POST",
-    mode: "no-cors", // Importante para evitar bloqueos de navegador
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      name: name,
-      time: time
-    })
-  })
-  .then(() => {
-    console.log("✅ Datos enviados (modo no-cors)");
-  })
-  .catch(err => {
-    console.error("❌ Error enviando datos:", err);
-  });
-}
-
-/* ============================ CONFETTI ============================*/
-function launchConfetti() {
-  const end = Date.now() + 2500;
-
-  function frame() {
-    GameState.confettiLauncher({
-      particleCount: 3,
-      angle: 60,
-      spread: 55,
-      origin: { x: 0 }
-    });
-    GameState.confettiLauncher({
-      particleCount: 3,
-      angle: 120,
-      spread: 55,
-      origin: { x: 1 }
-    });
-
-    if (Date.now() < end) requestAnimationFrame(frame);
-  }
-
-  frame();
-}
-
-/* ============================ JUEGO ============================*/
-function initializeGame() {
-  GameState.isGameActive = true;
-  GameState.startTime = Date.now();
-  GameState.beats = 0;
-
-  DOM.fillStop1.setAttribute("offset", "0%");
-  DOM.fillStop2.setAttribute("offset", "0%");
-
-  window.addEventListener("devicemotion", handleMotion);
-
-  vibrate(100);
-}
-
-async function startGame() {
-  const nameInput = DOM.nameInput.value.trim();
-
-  if (!nameInput) {
-    alert("Escribe tu nombre primero 😉");
-    return;
-  }
-
-  playerName = nameInput;
-
-  DOM.overlayStart.classList.add("hidden");
-  DOM.gameArea.style.display = "flex";
-
-  // Pedir permisos de sensor en iOS 13+
-  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === "function") {
-    try {
-      const permission = await DeviceMotionEvent.requestPermission();
-      if (permission !== "granted") {
-        alert("Debes permitir acceso al movimiento para jugar.");
-        return;
-      }
-    } catch (e) {
-      console.error(e);
-      alert("Error solicitando permisos: " + e);
-      return;
-    }
-  }
-
-  initializeGame();
-}
-
-/* ============================ EVENTO ============================*/
-DOM.startButton.addEventListener("click", startGame);
-</script>
-
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            }
+        };
+    </script>
 </body>
 </html>
