@@ -1,27 +1,25 @@
-⁸<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>¡ Batiphone !</title>
+    <title>Desafío Jungle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
+    
     <style>
-        /* ================= CONFIGURACIÓN ================= */
+        /* ================= CONFIGURACIÓN VISUAL JUNGLE ================= */
         :root {
-            /* 1. TAMAÑO DEL LOGO */
-            /* Cambia este valor para agrandar o achicar el logo central */
-            --logo-size: 450px; 
-
-            /* 2. IMAGEN DE FONDO */
-            /* Asegúrate de tener este archivo en la carpeta */
-            --bg-image: url('fondo.jpg'); 
-
-            /* 3. COLORES */
-            --brand-color: #E53935; /* Rojo */
+            --brand-color: #FCEE09; /* Amarillo Jungle */
+            --dark-bg: rgba(10, 10, 10, 0.9);
+            --logo-size: 350px; 
+            --bg-image: url('fondo.png'); /* Tu imagen de fondo */
         }
+
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: 'Montserrat', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -30,260 +28,305 @@
             overflow: hidden;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-
-            /* CONFIGURACIÓN DEL FONDO DE PANTALLA */
-            background-color: #1A1A2E; /* Color de respaldo si falla la imagen */
+            background-color: #000;
             background-image: var(--bg-image);
-            background-size: cover;      /* Cubre toda la pantalla */
-            background-position: center; /* Centrado */
+            background-size: cover;
+            background-position: center;
             background-repeat: no-repeat;
         }
 
-        /* Capa oscura sobre el fondo para que el logo resalte (Opcional) */
-        body::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5); /* Oscurece el fondo un 50% */
-            z-index: 0;
+        /* --- PANELES (FORMULARIO E INSTRUCCIONES) --- */
+        .overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 100;
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        /* --- CONTENEDOR DEL LOGO --- */
-        .logo-wrapper {
+        .panel {
+            background: var(--dark-bg);
+            border: 3px solid var(--brand-color);
+            border-radius: 15px;
+            padding: 30px 25px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(252, 238, 9, 0.4), inset 0 0 15px rgba(252, 238, 9, 0.1);
+            text-align: center;
             position: relative;
-            /* AQUÍ SE APLICA EL TAMAÑO CONFIGURADO ARRIBA */
-            width: var(--logo-size);
-            height: var(--logo-size);
-            display: none; /* Se activa con JS */
-            z-index: 10;   /* Por encima del fondo */
-            
-            animation: breathe 3s infinite alternate ease-in-out;
         }
 
-        /* --- LAS IMÁGENES --- */
-        .logo-img {
+        .hidden { 
+            opacity: 0; 
+            pointer-events: none; 
+            transform: scale(0.9);
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: contain;
-            pointer-events: none;
         }
 
-        /* 1. La imagen "Fantasma" (Fondo) */
-        .ghost {
-            opacity: 0.3; /* Un poco más visible para guiar */
-            filter: grayscale(1) brightness(2); /* Blanco y negro brillante */
-            z-index: 1;
+        h2 { 
+            color: var(--brand-color); 
+            font-size: 1.8rem; 
+            margin-top: 0; 
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0px #000;
         }
 
-        /* 2. La imagen "Real" (Frente) */
+        .form-group { text-align: left; margin-bottom: 15px; }
+        .form-group label { color: #fff; font-size: 0.9rem; margin-bottom: 5px; display: block; }
+        
+        input {
+            width: 100%; padding: 15px; font-size: 1.1rem;
+            background: #111; color: var(--brand-color);
+            border: 2px solid #333; border-radius: 8px;
+            font-family: 'Montserrat', sans-serif; font-weight: bold;
+            transition: border-color 0.3s;
+        }
+        input:focus { outline: none; border-color: var(--brand-color); }
+        input::placeholder { color: #666; font-weight: normal; }
+
+        button {
+            width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900;
+            background: var(--brand-color); color: #000;
+            border: none; border-radius: 8px; cursor: pointer;
+            text-transform: uppercase; margin-top: 15px;
+            box-shadow: 0 5px 0px #b5aa05;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        button:active { transform: translateY(5px); box-shadow: 0 0px 0px #b5aa05; }
+
+        /* --- INSTRUCCIONES --- */
+        .instruction-item {
+            display: flex; align-items: center; text-align: left;
+            margin-bottom: 20px; color: #fff; font-size: 1rem;
+        }
+        .instruction-icon {
+            font-size: 2rem; margin-right: 15px;
+            background: #222; border-radius: 50%; padding: 10px;
+            border: 1px solid var(--brand-color);
+            box-shadow: 0 0 10px rgba(252, 238, 9, 0.3);
+        }
+
+        /* --- JUEGO --- */
+        .logo-wrapper {
+            position: relative; width: var(--logo-size); height: var(--logo-size);
+            display: none; z-index: 10;
+        }
+        .logo-img {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; object-fit: contain; pointer-events: none;
+        }
+        .ghost { opacity: 0.2; filter: grayscale(1); z-index: 1; }
         .full-color {
-            z-index: 2;
-            opacity: 1;
-            filter: drop-shadow(0 0 15px rgba(229, 57, 53, 0.5)); /* Glow rojo */
-            
-            /* Recorte inicial (100% oculto desde arriba) */
+            z-index: 2; opacity: 1;
+            filter: drop-shadow(0 0 20px rgba(252, 238, 9, 0.8));
             clip-path: inset(100% 0 0 0);
             -webkit-clip-path: inset(100% 0 0 0);
-            
             transition: clip-path 0.1s linear, -webkit-clip-path 0.1s linear;
         }
 
-        /* --- INTERFAZ --- */
-        .overlay {
-            position: fixed; inset: 0;
-            background: rgba(20, 20, 35, 0.95); /* Fondo casi sólido para menús */
-            backdrop-filter: blur(10px);
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            text-align: center; z-index: 100;
-            transition: opacity 0.5s; padding: 20px;
-        }
-        .hidden { opacity: 0; pointer-events: none; }
+        .big-text { font-size: 4rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
         
-        h1 { margin-bottom: 10px; font-size: 2rem; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        p { color: #ddd; margin-bottom: 30px; font-size: 1.1rem; }
-        
-        input {
-            padding: 15px; margin-bottom: 20px; font-size: 1.2rem;
-            border-radius: 8px; border: 2px solid #555; background: #222; color: white;
-            width: 80%; max-width: 300px; text-align: center;
-        }
-        
-        button {
-            padding: 15px 50px; font-size: 1.3rem; font-weight: bold;
-            background: var(--brand-color); color: white;
-            border: none; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 0 20px rgba(229, 57, 53, 0.5);
-            transition: transform 0.1s;
-        }
-        button:active { transform: scale(0.95); }
-        
-        .big-text { font-size: 5rem; margin: 0; font-weight: 900; color: var(--brand-color); text-shadow: 2px 2px 0px white; }
-
-        @keyframes breathe { from { transform: scale(1); } to { transform: scale(1.05); } }
-        
-        /* FIX CONFETTI: Asegura que cubra toda la pantalla */
         #confetti-canvas { 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100vw; 
-            height: 100vh; 
-            pointer-events: none; 
-            z-index: 200; 
-        }
-        
-        .tap-hint {
-            position: absolute; bottom: 30px; 
-            color: rgba(255,255,255,0.6); font-size: 0.9rem; 
-            z-index: 20; text-shadow: 0 1px 2px black;
+            position: fixed; top: 0; left: 0; 
+            width: 100vw; height: 100vh; 
+            pointer-events: none; z-index: 200; 
         }
     </style>
 </head>
-
 <body>
 
-    <div id="screen-start" class="overlay">
-        <h1>¡Desafío BATIPHONE!</h1>
-        <p>Agita tu celular para cargar de energía la imagen.</p>
-        <input type="text" id="player-name" placeholder="Tu Nombre">
-        <button onclick="Game.start()">¡JUGAR!</button>
+    <div id="screen-form" class="overlay">
+        <div class="panel">
+            <h2>Ingresa para jugar</h2>
+            <div class="form-group">
+                <label>Nombre:</label>
+                <input type="text" id="player-name" placeholder="Ej: Juan Pérez">
+            </div>
+            <div class="form-group">
+                <label>Número de Celular:</label>
+                <input type="tel" id="player-phone" placeholder="(+56) 9...">
+            </div>
+            <button id="btn-next">Siguiente</button>
+        </div>
+    </div>
+
+    <div id="screen-instructions" class="overlay hidden">
+        <div class="panel">
+            <h2>Cómo Jugar</h2>
+            
+            <div class="instruction-item">
+                <div class="instruction-icon">📱</div>
+                <div>Agita tu celular rápidamente para cargar la energía de la lata.</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-icon">⏱️</div>
+                <div>El tiempo más rápido se lleva el premio.</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-icon">👆</div>
+                <div>Si no puedes agitar, tapea rápido la pantalla.</div>
+            </div>
+
+            <button id="btn-start">¡LISTO, VAMOS!</button>
+        </div>
     </div>
 
     <div id="screen-result" class="overlay hidden">
-        <h1>¡Completado!</h1>
-        <p>Tu tiempo fue:</p>
-        <p class="big-text" id="final-time">0.00s</p>
-        <button onclick="location.reload()">Jugar de nuevo</button>
+        <div class="panel">
+            <h2>¡Carga Completa!</h2>
+            <p style="color: white; font-size:1.2rem; margin:0;">Tu tiempo fue:</p>
+            <p class="big-text" id="final-time">0.00s</p>
+            <button onclick="location.reload()">Jugar de nuevo</button>
+        </div>
     </div>
 
-    <div id="game-container" class="logo-wrapper" onclick="Game.simulateShake()">
+    <div id="game-container" class="logo-wrapper">
         <img src="logo.png" class="logo-img ghost" alt="Logo Fondo">
         <img src="logo.png" id="full-image" class="logo-img full-color" alt="Logo Color">
     </div>
 
-    <p class="tap-hint" id="hint-text" style="display:none">Agita fuerte o toca la pantalla</p>
-
     <canvas id="confetti-canvas"></canvas>
-
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-        const Config = {
-            webhookUrl: "https://script.google.com/macros/s/AKfycbxDe-9KMaNos7YfBJIJCCiBDTM2yFsM2JXM3GxizRQbyFy-VEfuJjJv0nqlVu_I-nY7Gw/exec", 
-            targetBeats: 500, // Dificultad (agitar más o menos veces)
-            shakeThreshold: 15 
-        };
+        // CLAUSURA DE SEGURIDAD (Mismo blindaje de la versión anterior)
+        (function() {
+            const CONFIG = Object.freeze({
+                webhookUrl: "TU_URL_DE_GOOGLE_SCRIPT_AQUI", // <-- Reemplaza con tu Webhook
+                targetBeats: 500, // Dificultad
+                threshold: 15,
+                minTimePossible: 2.0 // Anti-hack tiempo mínimo
+            });
 
-        const Game = {
-            active: false,
-            beats: 0,
-            startTime: 0,
-            playerName: "",
+            let state = {
+                active: false, beats: 0, start: 0,
+                name: "", phone: "", lastBeatTime: 0
+            };
 
-            start: async function() {
-                const name = document.getElementById("player-name").value.trim();
-                if(!name) return alert("Por favor escribe tu nombre 😉");
+            const ui = {
+                screenForm: document.getElementById("screen-form"),
+                screenInstructions: document.getElementById("screen-instructions"),
+                screenResult: document.getElementById("screen-result"),
+                gameContainer: document.getElementById("game-container"),
+                fullImage: document.getElementById("full-image"),
+                finalTimeText: document.getElementById("final-time"),
+                nameInput: document.getElementById("player-name"),
+                phoneInput: document.getElementById("player-phone"),
+                btnNext: document.getElementById("btn-next"),
+                btnStart: document.getElementById("btn-start")
+            };
+
+            // PASO 1: Validar Formulario y pasar a Instrucciones
+            ui.btnNext.onclick = () => {
+                const name = ui.nameInput.value.trim();
+                const phone = ui.phoneInput.value.trim();
                 
-                // Permisos iOS
+                if(!name || !phone) {
+                    alert("Por favor, completa todos los datos para continuar.");
+                    return;
+                }
+
+                state.name = name;
+                state.phone = phone;
+
+                // Ocultar form, mostrar instrucciones
+                ui.screenForm.classList.add("hidden");
+                setTimeout(() => ui.screenInstructions.classList.remove("hidden"), 300);
+            };
+
+            // PASO 2: Iniciar el juego desde las instrucciones
+            ui.btnStart.onclick = async () => {
+                // Pedir permisos de acelerómetro en iOS (debe hacerse tras un click del usuario)
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
                     try {
-                        const response = await DeviceMotionEvent.requestPermission();
-                        if (response !== 'granted') alert("Permiso denegado. Toca la pantalla para jugar.");
+                        const resp = await DeviceMotionEvent.requestPermission();
+                        if (resp !== 'granted') console.log("Sensor denegado. Usará clics.");
                     } catch (e) { console.error(e); }
                 }
 
-                this.playerName = name;
-                this.active = true;
-                this.startTime = Date.now();
-                this.beats = 0;
-
-                document.getElementById("screen-start").classList.add("hidden");
-                document.getElementById("game-container").style.display = "block";
-                document.getElementById("hint-text").style.display = "block";
+                // Ocultar instrucciones, iniciar juego
+                ui.screenInstructions.classList.add("hidden");
+                ui.gameContainer.style.display = "block";
                 
-                this.updateVisuals(0);
+                state.active = true;
+                state.start = Date.now();
+                state.beats = 0;
 
-                window.addEventListener("devicemotion", (e) => this.handleMotion(e));
-                if(navigator.vibrate) navigator.vibrate(100);
-            },
+                window.addEventListener("devicemotion", handleMotion);
+                ui.gameContainer.addEventListener("click", handleTap);
+            };
 
-            handleMotion: function(event) {
-                if (!this.active) return;
-                const acc = event.acceleration;
+            const handleMotion = (e) => {
+                if (!state.active) return;
+                const acc = e.acceleration;
                 const force = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
-                if (force > Config.shakeThreshold) this.addBeat();
-            },
+                if (force > CONFIG.threshold) addBeat(1);
+            };
 
-            simulateShake: function() {
-                if (!this.active) return;
-                for(let i=0; i<5; i++) this.addBeat(); 
-            },
+            const handleTap = () => {
+                if (!state.active) return;
+                const now = Date.now();
+                if(now - state.lastBeatTime < 50) return; // Anti-auto-clicker
+                state.lastBeatTime = now;
+                addBeat(5); // El click llena más rápido para compensar que no es agitar
+            };
 
-            addBeat: function() {
-                this.beats++;
-                const percentage = Math.min((this.beats / Config.targetBeats) * 100, 100);
-                this.updateVisuals(percentage);
-                if(this.beats % 10 === 0 && navigator.vibrate) navigator.vibrate(20);
-                if (this.beats >= Config.targetBeats) this.finish();
-            },
-
-            updateVisuals: function(percentage) {
-                const clipValue = 100 - percentage;
-                const img = document.getElementById("full-image");
-                img.style.clipPath = `inset(${clipValue}% 0 0 0)`;
-                img.style.webkitClipPath = `inset(${clipValue}% 0 0 0)`;
-            },
-
-            finish: function() {
-                if (!this.active) return;
-                this.active = false;
-                const totalTime = ((Date.now() - this.startTime) / 1000).toFixed(2);
+            const addBeat = (amount) => {
+                state.beats += amount;
+                const progress = Math.min((state.beats / CONFIG.targetBeats) * 100, 100);
                 
-                document.getElementById("final-time").innerText = `${totalTime}s`;
-                document.getElementById("screen-result").classList.remove("hidden");
-                document.getElementById("hint-text").style.display = "none";
+                const clip = 100 - progress;
+                ui.fullImage.style.clipPath = `inset(${clip}% 0 0 0)`;
+                ui.fullImage.style.webkitClipPath = `inset(${clip}% 0 0 0)`;
+
+                if (state.beats >= CONFIG.targetBeats) finish();
+            };
+
+            const finish = () => {
+                if (!state.active) return;
+                state.active = false;
                 
-                // LANZAR CONFETTI ARREGLADO
-                this.launchRainConfetti();
+                const endTime = Date.now();
+                const totalTime = ((endTime - state.start) / 1000).toFixed(2);
+
+                if (totalTime < CONFIG.minTimePossible) {
+                    alert("¡Demasiado rápido! Parece un error o trampa.");
+                    location.reload();
+                    return;
+                }
+
+                ui.finalTimeText.innerText = `${totalTime}s`;
+                ui.screenResult.classList.remove("hidden");
                 
-                if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                this.sendData(totalTime);
-            },
+                launchConfetti();
+                sendData(totalTime);
+            };
 
-            sendData: function(time) {
-                if(!Config.webhookUrl) return;
-                fetch(Config.webhookUrl, {
-                    method: "POST", mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name: this.playerName, time: time })
-                }).catch(console.error);
-            },
+            const sendData = (time) => {
+                const payload = {
+                    name: state.name,
+                    phone: state.phone, // <--- Ahora se envía el celular también
+                    time: time,
+                    v: btoa(state.name + time) 
+                };
 
-            // EFECTO LLUVIA DE CONFETTI (MEJORADO)
-            launchRainConfetti: function() {
-                const canvas = document.getElementById('confetti-canvas');
-                const myConfetti = confetti.create(canvas, { resize: true });
-                const duration = 3000;
-                const end = Date.now() + duration;
+                if(!CONFIG.webhookUrl.includes("TU_URL")) {
+                    fetch(CONFIG.webhookUrl, {
+                        method: "POST",
+                        mode: "no-cors",
+                        body: JSON.stringify(payload)
+                    }).catch(() => {});
+                }
+            };
 
-                (function frame() {
-                    // Lanza confetti desde posiciones aleatorias arriba
-                    myConfetti({
-                        particleCount: 5,
-                        angle: 270, // Hacia abajo
-                        spread: 180, // Expansión total
-                        origin: { x: Math.random(), y: -0.1 }, // Desde cualquier punto X, arriba de la pantalla (Y < 0)
-                        colors: ['#E53935', '#ffffff', '#FFD700'], // Rojo, Blanco, Dorado
-                        scalar: 1.2 // Un poco más grandes
-                    });
-
-                    if (Date.now() < end) {
-                        requestAnimationFrame(frame);
-                    }
-                }());
-            }
-        };
+            const launchConfetti = () => {
+                const myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true });
+                myConfetti({ particleCount: 150, spread: 90, origin: { y: 0.5 }, colors: ['#FCEE09', '#000000', '#ffffff'] });
+            };
+        })();
     </script>
 </body>
 </html>
