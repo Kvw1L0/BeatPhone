@@ -10,9 +10,9 @@
         /* ================= CONFIGURACIÓN VISUAL JUNGLE ================= */
         :root {
             --brand-color: #FCEE09; /* Amarillo Jungle */
-            --dark-bg: rgba(10, 10, 10, 0.9);
+            --dark-bg: rgba(10, 10, 10, 0.95);
             --logo-size: 350px; 
-            --bg-image: url('fondo.png'); /* Tu imagen de fondo */
+            --bg-image: url('fondo.jpg'); /* Tu imagen de fondo */
         }
 
         * { box-sizing: border-box; }
@@ -48,12 +48,15 @@
 
         .panel {
             background: var(--dark-bg);
-            border: 3px solid var(--brand-color);
-            border-radius: 15px;
-            padding: 30px 25px;
+            /* EL TRUCO PARA EL BORDE A MANO ALZADA */
+            border: 4px solid var(--brand-color);
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            box-shadow: 
+                0 0 15px rgba(252, 238, 9, 0.4), 
+                inset 0 0 10px rgba(252, 238, 9, 0.1);
+            padding: 35px 25px;
             width: 90%;
             max-width: 400px;
-            box-shadow: 0 0 20px rgba(252, 238, 9, 0.4), inset 0 0 15px rgba(252, 238, 9, 0.1);
             text-align: center;
             position: relative;
         }
@@ -80,7 +83,9 @@
         input {
             width: 100%; padding: 15px; font-size: 1.1rem;
             background: #111; color: var(--brand-color);
-            border: 2px solid #333; border-radius: 8px;
+            /* Borde a mano alzada también en los inputs */
+            border: 2px solid #444; 
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
             font-family: 'Montserrat', sans-serif; font-weight: bold;
             transition: border-color 0.3s;
         }
@@ -90,7 +95,10 @@
         button {
             width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900;
             background: var(--brand-color); color: #000;
-            border: none; border-radius: 8px; cursor: pointer;
+            border: none; 
+            /* Borde orgánico para el botón */
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            cursor: pointer;
             text-transform: uppercase; margin-top: 15px;
             box-shadow: 0 5px 0px #b5aa05;
             transition: transform 0.1s, box-shadow 0.1s;
@@ -119,12 +127,12 @@
             width: 100%; height: 100%; object-fit: contain; pointer-events: none;
         }
         .ghost { opacity: 0.2; filter: grayscale(1); z-index: 1; }
+        
+        /* OPTIMIZACIÓN DE LAG: Sin transition y sin filter: drop-shadow */
         .full-color {
             z-index: 2; opacity: 1;
-            filter: drop-shadow(0 0 20px rgba(252, 238, 9, 0.8));
             clip-path: inset(100% 0 0 0);
             -webkit-clip-path: inset(100% 0 0 0);
-            transition: clip-path 0.1s linear, -webkit-clip-path 0.1s linear;
         }
 
         .big-text { font-size: 4rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
@@ -159,7 +167,7 @@
             
             <div class="instruction-item">
                 <div class="instruction-icon">📱</div>
-                <div>Agita tu celular rápidamente para cargar la energía de la lata.</div>
+                <div>Agita tu celular rápidamente para cargar la energía.</div>
             </div>
             <div class="instruction-item">
                 <div class="instruction-icon">⏱️</div>
@@ -192,19 +200,21 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-        // CLAUSURA DE SEGURIDAD (Mismo blindaje de la versión anterior)
         (function() {
             const CONFIG = Object.freeze({
-                webhookUrl: "TU_URL_DE_GOOGLE_SCRIPT_AQUI", // <-- Reemplaza con tu Webhook
-                targetBeats: 500, // Dificultad
+                webhookUrl: "TU_URL_DE_GOOGLE_SCRIPT_AQUI", 
+                targetBeats: 500, 
                 threshold: 15,
-                minTimePossible: 2.0 // Anti-hack tiempo mínimo
+                minTimePossible: 2.0 
             });
 
             let state = {
                 active: false, beats: 0, start: 0,
                 name: "", phone: "", lastBeatTime: 0
             };
+
+            // OPTIMIZACIÓN: Control de fotogramas
+            let animationPending = false;
 
             const ui = {
                 screenForm: document.getElementById("screen-form"),
@@ -219,7 +229,6 @@
                 btnStart: document.getElementById("btn-start")
             };
 
-            // PASO 1: Validar Formulario y pasar a Instrucciones
             ui.btnNext.onclick = () => {
                 const name = ui.nameInput.value.trim();
                 const phone = ui.phoneInput.value.trim();
@@ -232,14 +241,11 @@
                 state.name = name;
                 state.phone = phone;
 
-                // Ocultar form, mostrar instrucciones
                 ui.screenForm.classList.add("hidden");
                 setTimeout(() => ui.screenInstructions.classList.remove("hidden"), 300);
             };
 
-            // PASO 2: Iniciar el juego desde las instrucciones
             ui.btnStart.onclick = async () => {
-                // Pedir permisos de acelerómetro en iOS (debe hacerse tras un click del usuario)
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
                     try {
                         const resp = await DeviceMotionEvent.requestPermission();
@@ -247,7 +253,6 @@
                     } catch (e) { console.error(e); }
                 }
 
-                // Ocultar instrucciones, iniciar juego
                 ui.screenInstructions.classList.add("hidden");
                 ui.gameContainer.style.display = "block";
                 
@@ -269,18 +274,25 @@
             const handleTap = () => {
                 if (!state.active) return;
                 const now = Date.now();
-                if(now - state.lastBeatTime < 50) return; // Anti-auto-clicker
+                if(now - state.lastBeatTime < 50) return; 
                 state.lastBeatTime = now;
-                addBeat(5); // El click llena más rápido para compensar que no es agitar
+                addBeat(5); 
             };
 
             const addBeat = (amount) => {
                 state.beats += amount;
                 const progress = Math.min((state.beats / CONFIG.targetBeats) * 100, 100);
-                
                 const clip = 100 - progress;
-                ui.fullImage.style.clipPath = `inset(${clip}% 0 0 0)`;
-                ui.fullImage.style.webkitClipPath = `inset(${clip}% 0 0 0)`;
+
+                // OPTIMIZACIÓN: requestAnimationFrame
+                if (!animationPending) {
+                    animationPending = true;
+                    requestAnimationFrame(() => {
+                        ui.fullImage.style.clipPath = `inset(${clip}% 0 0 0)`;
+                        ui.fullImage.style.webkitClipPath = `inset(${clip}% 0 0 0)`;
+                        animationPending = false;
+                    });
+                }
 
                 if (state.beats >= CONFIG.targetBeats) finish();
             };
@@ -308,7 +320,7 @@
             const sendData = (time) => {
                 const payload = {
                     name: state.name,
-                    phone: state.phone, // <--- Ahora se envía el celular también
+                    phone: state.phone,
                     time: time,
                     v: btoa(state.name + time) 
                 };
