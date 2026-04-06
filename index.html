@@ -3,362 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Desafío BATIPHONE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
-    
+    <title>¡ Batiphone !</title>
     <style>
+        /* ================= CONFIGURACIÓN ================= */
         :root {
-            --brand-color: #FCEE09; 
-            --dark-bg: rgba(10, 10, 10, 0.95);
-            --logo-size: 350px; 
-            --bg-image: url('fondo.png'); 
-        }
+            /* 1. TAMAÑO DEL LOGO */
+            --logo-size: 450px; 
 
-        * { box-sizing: border-box; }
+            /* 2. IMAGEN DE FONDO */
+            --bg-image: url('fondo.jpg'); 
+
+            /* 3. COLORES */
+            --brand-color: #E53935; /* Rojo */
+        }
 
         body {
-            margin: 0; font-family: 'Montserrat', sans-serif;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; width: 100vw; overflow: hidden;
-            user-select: none; -webkit-tap-highlight-color: transparent;
-            background-color: #000; background-image: var(--bg-image);
-            background-size: cover; background-position: center; background-repeat: no-repeat;
+            margin: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+
+            /* CONFIGURACIÓN DEL FONDO DE PANTALLA */
+            background-color: #1A1A2E; 
+            background-image: var(--bg-image);
+            background-size: cover;      
+            background-position: center; 
+            background-repeat: no-repeat;
         }
 
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5); 
+            z-index: 0;
+        }
+
+        /* --- CONTENEDOR DEL LOGO --- */
+        .logo-wrapper {
+            position: relative;
+            width: var(--logo-size);
+            height: var(--logo-size);
+            display: none; /* Se activa con JS */
+            z-index: 10;   /* Por encima del fondo */
+            pointer-events: none; /* Asegura que no bloquee interacciones */
+            
+            animation: breathe 3s infinite alternate ease-in-out;
+        }
+
+        /* --- LAS IMÁGENES --- */
+        .logo-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* 1. La imagen "Guía Monocolor Gris Sólido" (Fondo) */
+        .ghost {
+            opacity: 1; /* Sólido, opaco, como guía clara */
+            filter: grayscale(1) brightness(0.7); /* Gris sólido medio para contrastar */
+            z-index: 1;
+        }
+
+        /* 2. El elemento de cortina y la imagen "Real" (Frente) con el triángulo */
+        #full-image-wrapper {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2;
+            pointer-events: none; /* Asegura que no bloquee interacciones */
+
+            /* Efecto de cortina inicial (100% oculto desde arriba) */
+            clip-path: inset(100% 0 0 0);
+            -webkit-clip-path: inset(100% 0 0 0);
+            
+            transition: clip-path 0.1s linear, -webkit-clip-path 0.1s linear;
+        }
+
+        /* Cambiar .full-color para que sea el triángulo central */
+        .full-color {
+            /* Triángulo central, punta abajo, centrado horizontalmente */
+            clip-path: polygon(50% 80%, 25% 20%, 75% 20%); 
+            z-index: 1; /* Dentro de la envoltura */
+            opacity: 1;
+            filter: drop-shadow(0 0 15px rgba(229, 57, 53, 0.5)); /* Glow rojo */
+        }
+
+        /* --- INTERFAZ --- */
         .overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 100;
-            transition: opacity 0.4s ease, transform 0.4s ease; /* Transición suave */
+            position: fixed; inset: 0;
+            background: rgba(20, 20, 35, 0.95); 
+            backdrop-filter: blur(10px);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; z-index: 100;
+            transition: opacity 0.5s; padding: 20px;
         }
-
-        .panel {
-            background: var(--dark-bg);
-            border: 4px solid var(--brand-color);
-            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            box-shadow: 0 0 15px rgba(252, 238, 9, 0.4), inset 0 0 10px rgba(252, 238, 9, 0.1);
-            padding: 35px 25px; width: 90%; max-width: 400px;
-            text-align: center; position: relative;
-        }
-
-        /* Clase para ocultar con fundido */
-        .hidden { opacity: 0; pointer-events: none; transform: scale(0.95); position: absolute; }
-
-        h2 { color: var(--brand-color); font-size: 1.8rem; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; text-shadow: 2px 2px 0px #000; }
-
-        .form-group { text-align: left; margin-bottom: 15px; }
-        .form-group label { color: #fff; font-size: 0.9rem; margin-bottom: 5px; display: block; }
+        .hidden { opacity: 0; pointer-events: none; }
+        
+        h1 { margin-bottom: 10px; font-size: 2rem; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        p { color: #ddd; margin-bottom: 30px; font-size: 1.1rem; }
         
         input {
-            width: 100%; padding: 15px; font-size: 1.1rem;
-            background: #111; color: var(--brand-color);
-            border: 2px solid #444; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            font-family: 'Montserrat', sans-serif; font-weight: bold; transition: border-color 0.3s;
+            padding: 15px; margin-bottom: 20px; font-size: 1.2rem;
+            border-radius: 8px; border: 2px solid #555; background: #222; color: white;
+            width: 80%; max-width: 300px; text-align: center;
         }
-        input:focus { outline: none; border-color: var(--brand-color); }
         
-        /* UX: Mayúscula automática en el nombre */
-        #player-name { text-transform: capitalize; }
-
         button {
-            width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900;
-            background: var(--brand-color); color: #000;
-            border: none; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            cursor: pointer; text-transform: uppercase; margin-top: 15px;
-            box-shadow: 0 5px 0px #b5aa05; transition: transform 0.1s, box-shadow 0.1s;
+            padding: 15px 50px; font-size: 1.3rem; font-weight: bold;
+            background: var(--brand-color); color: white;
+            border: none; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(229, 57, 53, 0.5);
+            transition: transform 0.1s;
         }
-        button:active { transform: translateY(5px); box-shadow: 0 0px 0px #b5aa05; }
-
-        .btn-secondary {
-            background: #111; color: var(--brand-color);
-            border: 2px solid var(--brand-color);
-            box-shadow: 0 5px 0px rgba(252, 238, 9, 0.3); margin-top: 25px;
-        }
-        .btn-secondary:active { box-shadow: 0 0px 0px rgba(252, 238, 9, 0.3); }
-
-        .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 1rem; }
-        .instruction-icon { font-size: 2rem; margin-right: 15px; background: #222; border-radius: 50%; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(252, 238, 9, 0.3); }
-
-        .logo-wrapper { position: relative; width: var(--logo-size); height: var(--logo-size); display: none; z-index: 10; }
-        .logo-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-        .ghost { opacity: 0.2; filter: grayscale(1); z-index: 1; }
-        .full-color {
-            z-index: 2; opacity: 1; clip-path: inset(100% 0 0 0); -webkit-clip-path: inset(100% 0 0 0);
-            transform: translateZ(0); will-change: clip-path;
-        }
-
-        .big-text { font-size: 3.5rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
+        button:active { transform: scale(0.95); }
         
-        /* Estilos de la Cuenta Regresiva */
-        #countdown-text { font-size: 8rem; font-weight: 900; color: var(--brand-color); text-shadow: 5px 5px 0px #000; animation: pop 1s infinite; }
-        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+        .big-text { font-size: 5rem; margin: 0; font-weight: 900; color: var(--brand-color); text-shadow: 2px 2px 0px white; }
+
+        @keyframes breathe { from { transform: scale(1); } to { transform: scale(1.05); } }
         
-        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 200; }
-        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
+        #confetti-canvas { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            pointer-events: none; 
+            z-index: 200; 
+        }
+        
+        .tap-hint {
+            position: absolute; bottom: 30px; 
+            color: rgba(255,255,255,0.6); font-size: 0.9rem; 
+            z-index: 20; text-shadow: 0 1px 2px black;
+        }
     </style>
 </head>
+
 <body>
 
-    <div id="screen-form" class="overlay">
-        <div class="panel">
-            <h2>Ingresa para jugar</h2>
-            <div class="form-group">
-                <label>Nombre:</label>
-                <input type="text" id="player-name" placeholder="Ej: Juan Pérez" autocomplete="name">
-            </div>
-            <div class="form-group">
-                <label>Número de Celular:</label>
-                <input type="tel" id="player-phone" placeholder="9 1234 5678" autocomplete="tel" inputmode="numeric" pattern="[0-9]*">
-            </div>
-            <button id="btn-next">Siguiente</button>
-        </div>
-    </div>
-
-    <div id="screen-instructions" class="overlay hidden">
-        <div class="panel">
-            <h2>Cómo Jugar</h2>
-            <div class="instruction-item">
-                <div class="instruction-icon">📱</div>
-                <div>Agita tu celular rápidamente para cargar la energía.</div>
-            </div>
-            <div class="instruction-item">
-                <div class="instruction-icon">⏱️</div>
-                <div>El tiempo más rápido se lleva el premio.</div>
-            </div>
-            <button id="btn-start">¡LISTO, VAMOS!</button>
-        </div>
-    </div>
-
-    <div id="screen-countdown" class="overlay hidden" style="background: rgba(0,0,0,0.9);">
-        <div id="countdown-text">3</div>
+    <div id="screen-start" class="overlay">
+        <h1>¡Desafío BATIPHONE!</h1>
+        <p>Agita tu celular para cargar de energía la imagen.</p>
+        <input type="text" id="player-name" placeholder="Tu Nombre">
+        <button id="btn-play">¡JUGAR!</button>
     </div>
 
     <div id="screen-result" class="overlay hidden">
-        <div class="panel">
-            <h2>¡Carga Completa!</h2>
-            <p style="color: white; font-size:1.2rem; margin:0;">Tu tiempo fue:</p>
-            <p class="big-text" id="final-time">0.00s</p>
-            
-            <div style="background: rgba(252, 238, 9, 0.1); border: 1px solid var(--brand-color); border-radius: 10px; padding: 15px; margin: 15px 0;">
-                <p id="rank-text" style="color: var(--brand-color); font-size: 1.1rem; font-weight: bold; margin: 0; animation: pulse 0.8s infinite alternate;">Calculando tu posición...</p>
-            </div>
-
-            <button onclick="window.location.href='ranking.html'" class="btn-secondary">🏆 VER RANKING</button>
-            <button onclick="location.reload()">JUGAR DE NUEVO</button>
-        </div>
+        <h1>¡Completado!</h1>
+        <p>Tu tiempo fue:</p>
+        <p class="big-text" id="final-time">0.00s</p>
+        <button id="btn-reload">Jugar de nuevo</button>
     </div>
 
     <div id="game-container" class="logo-wrapper">
         <img src="logo.png" class="logo-img ghost" alt="Logo Fondo">
-        <img src="logo.png" id="full-image" class="logo-img full-color" alt="Logo Color">
+        <div id="full-image-wrapper">
+            <img src="logo.png" id="full-image" class="logo-img full-color" alt="Logo Color">
+        </div>
     </div>
 
+    <p class="tap-hint" id="hint-text" style="display:none">Agita fuerte o toca la pantalla</p>
+
     <canvas id="confetti-canvas"></canvas>
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-        (function() {
-            const CONFIG = Object.freeze({
-                webhookUrl: "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec", 
-                targetBeats: 500, 
-                threshold: 15,
-                minTimePossible: 2.0 
-            });
+        const Config = {
+            webhookUrl: "https://script.google.com/macros/s/AKfycbxDe-9KMaNos7YfBJIJCCiBDTM2yFsM2JXM3GxizRQbyFy-VEfuJjJv0nqlVu_I-nY7Gw/exec", 
+            targetBeats: 500, // Dificultad (agitar más o menos veces)
+            shakeThreshold: 15 
+        };
 
-            // UX: Motor de Audio Sintético (No requiere mp3)
-            const AudioEngine = {
-                ctx: null,
-                init: function() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
-                playTone: function(freq, type, duration, vol=0.1) {
-                    if (!this.ctx) return;
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-                    osc.connect(gain); gain.connect(this.ctx.destination);
-                    osc.start(); osc.stop(this.ctx.currentTime + duration);
-                },
-                beep: function() { this.playTone(440, 'square', 0.2, 0.1); }, // 3..2..1
-                go: function() { this.playTone(880, 'square', 0.4, 0.2); },   // ¡AGITA!
-                tick: function() { this.playTone(600, 'sine', 0.1, 0.02); },  // Al agitar
-                win: function() { 
-                    this.playTone(440, 'sine', 0.5); 
-                    setTimeout(() => this.playTone(554, 'sine', 0.5), 100); 
-                    setTimeout(() => this.playTone(659, 'sine', 1.0), 200); 
-                } // Acorde de victoria
-            };
+        const Game = {
+            active: false,
+            beats: 0,
+            startTime: 0,
+            playerName: "",
 
-            let state = { active: false, beats: 0, start: 0, name: "", phone: "", lastBeatTime: 0 };
-            let animationPending = false;
+            init: function() {
+                // Configurar eventos
+                document.getElementById("btn-play").onclick = () => this.start();
+                document.getElementById("btn-reload").onclick = () => location.reload();
+                // Permitir simulación de agitar haciendo clic en el logo
+                document.getElementById("game-container").onclick = () => this.simulateShake();
+            },
 
-            const ui = {
-                screenForm: document.getElementById("screen-form"),
-                screenInst: document.getElementById("screen-instructions"),
-                screenCount: document.getElementById("screen-countdown"),
-                screenResult: document.getElementById("screen-result"),
-                gameContainer: document.getElementById("game-container"),
-                fullImage: document.getElementById("full-image"),
-                finalTimeText: document.getElementById("final-time"),
-                rankText: document.getElementById("rank-text"),
-                countText: document.getElementById("countdown-text"),
-                nameInput: document.getElementById("player-name"),
-                phoneInput: document.getElementById("player-phone"),
-                btnNext: document.getElementById("btn-next"),
-                btnStart: document.getElementById("btn-start")
-            };
-
-            // Sincronizar datos offline al cargar la página
-            function syncOfflineData() {
-                let pending = JSON.parse(localStorage.getItem("jungle_pending") || "[]");
-                if (pending.length > 0) {
-                    pending.forEach(p => fetch(CONFIG.webhookUrl, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(p) }));
-                    localStorage.removeItem("jungle_pending");
-                }
-            }
-            syncOfflineData();
-
-            function switchScreen(hide, show) {
-                hide.classList.add("hidden");
-                setTimeout(() => show.classList.remove("hidden"), 400); // Espera al fade out
-            }
-
-            ui.btnNext.onclick = () => {
-                const name = ui.nameInput.value.trim();
-                const phone = ui.phoneInput.value.trim();
-                if(!name || !phone) return alert("Por favor, completa todos los datos.");
-                state.name = name; state.phone = phone;
-                switchScreen(ui.screenForm, ui.screenInst);
-            };
-
-            ui.btnStart.onclick = async () => {
-                // Iniciar motor de audio con interacción del usuario (requisito de los navegadores)
-                AudioEngine.init();
-
+            start: async function() {
+                const name = document.getElementById("player-name").value.trim();
+                if(!name) return alert("Por favor escribe tu nombre 😉");
+                
+                // Permisos iOS
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    try { const resp = await DeviceMotionEvent.requestPermission(); } catch (e) { }
+                    try {
+                        const response = await DeviceMotionEvent.requestPermission();
+                        if (response !== 'granted') alert("Permiso denegado. Toca la pantalla para jugar.");
+                    } catch (e) { console.error(e); }
                 }
+
+                this.playerName = name;
+                this.active = true;
+                this.startTime = Date.now();
+                this.beats = 0;
+
+                document.getElementById("screen-start").classList.add("hidden");
+                document.getElementById("game-container").style.display = "block";
+                document.getElementById("hint-text").style.display = "block";
                 
-                ui.screenInst.classList.add("hidden");
-                setTimeout(startCountdown, 400);
-            };
+                this.updateVisuals(0); // Llama a la función de JS para actualizar el visual
 
-            function startCountdown() {
-                ui.screenCount.classList.remove("hidden");
-                let count = 3;
-                ui.countText.innerText = count;
-                AudioEngine.beep();
+                window.addEventListener("devicemotion", (e) => this.handleMotion(e));
+                if(navigator.vibrate) navigator.vibrate(100);
+            },
 
-                const interval = setInterval(() => {
-                    count--;
-                    if (count > 0) {
-                        ui.countText.innerText = count;
-                        AudioEngine.beep();
-                    } else if (count === 0) {
-                        ui.countText.innerText = "¡AGITA!";
-                        ui.countText.style.fontSize = "5rem";
-                        AudioEngine.go();
-                        if(navigator.vibrate) navigator.vibrate(500); // Vibración larga
-                    } else {
-                        clearInterval(interval);
-                        ui.screenCount.classList.add("hidden");
-                        ui.gameContainer.style.display = "block";
-                        startGame();
-                    }
-                }, 1000);
-            }
-
-            function startGame() {
-                state.active = true; state.start = Date.now(); state.beats = 0;
-                window.addEventListener("devicemotion", handleMotion);
-                ui.gameContainer.addEventListener("click", handleTap);
-            }
-
-            const handleMotion = (e) => {
-                if (!state.active) return;
-                const acc = e.acceleration;
+            handleMotion: function(event) {
+                if (!this.active) return;
+                const acc = event.acceleration;
                 const force = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
-                if (force > CONFIG.threshold) addBeat(1);
-            };
+                if (force > Config.shakeThreshold) this.addBeat();
+            },
 
-            const handleTap = () => {
-                if (!state.active) return;
-                const now = Date.now();
-                if(now - state.lastBeatTime < 50) return; 
-                state.lastBeatTime = now; addBeat(5); 
-            };
+            simulateShake: function() {
+                if (!this.active) return;
+                for(let i=0; i<5; i++) this.addBeat(); 
+            },
 
-            const addBeat = (amount) => {
-                state.beats += amount;
+            addBeat: function() {
+                this.beats++;
+                const percentage = Math.min((this.beats / Config.targetBeats) * 100, 100);
+                this.updateVisuals(percentage); // Llama a la función de JS para actualizar el visual
+                if(this.beats % 10 === 0 && navigator.vibrate) navigator.vibrate(20);
+                if (this.beats >= Config.targetBeats) this.finish();
+            },
+
+            // Esta es la función clave de JS que vamos a cambiar
+            updateVisuals: function(percentage) {
+                const clipValue = 100 - percentage;
+                // Cambiamos el ID para que apunte a la envoltura de la cortina
+                const wrapper = document.getElementById("full-image-wrapper");
+                wrapper.style.clipPath = `inset(${clipValue}% 0 0 0)`;
+                wrapper.style.webkitClipPath = `inset(${clipValue}% 0 0 0)`;
+            },
+
+            finish: function() {
+                if (!this.active) return;
+                this.active = false;
+                const totalTime = ((Date.now() - this.startTime) / 1000).toFixed(2);
                 
-                // UX: Pequeña vibración y sonido esporádico para no saturar
-                if(state.beats % 20 === 0) {
-                    AudioEngine.tick();
-                    if(navigator.vibrate) navigator.vibrate(15);
-                }
+                document.getElementById("final-time").innerText = `${totalTime}s`;
+                document.getElementById("screen-result").classList.remove("hidden");
+                document.getElementById("hint-text").style.display = "none";
+                
+                // LANZAR CONFETTI ARREGLADO
+                this.launchRainConfetti();
+                
+                if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                this.sendData(totalTime);
+            },
 
-                const progress = Math.min((state.beats / CONFIG.targetBeats) * 100, 100);
-                const clip = 100 - progress;
+            sendData: function(time) {
+                if(!Config.webhookUrl) return;
+                fetch(Config.webhookUrl, {
+                    method: "POST", mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: this.playerName, time: time })
+                }).catch(console.error);
+            },
 
-                if (!animationPending) {
-                    animationPending = true;
-                    requestAnimationFrame(() => {
-                        ui.fullImage.style.clipPath = `inset(${clip}% 0 0 0)`;
-                        ui.fullImage.style.webkitClipPath = `inset(${clip}% 0 0 0)`;
-                        animationPending = false;
+            // EFECTO LLUVIA DE CONFETTI (MEJORADO)
+            launchRainConfetti: function() {
+                const canvas = document.getElementById('confetti-canvas');
+                const myConfetti = confetti.create(canvas, { resize: true });
+                const duration = 3000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    // Lanza confetti desde posiciones aleatorias arriba
+                    myConfetti({
+                        particleCount: 5,
+                        angle: 270, // Hacia abajo
+                        spread: 180, // Expansión total
+                        origin: { x: Math.random(), y: -0.1 }, // Desde cualquier punto X, arriba de la pantalla (Y < 0)
+                        colors: ['#E53935', '#ffffff', '#FFD700'], // Rojo, Blanco, Dorado
+                        scalar: 1.2 // Un poco más grandes
                     });
-                }
-                if (state.beats >= CONFIG.targetBeats) finish();
-            };
 
-            const finish = () => {
-                if (!state.active) return;
-                state.active = false;
-                const totalTime = ((Date.now() - state.start) / 1000).toFixed(2);
-
-                if (totalTime < CONFIG.minTimePossible) {
-                    alert("¡Demasiado rápido! Parece un error o trampa.");
-                    location.reload(); return;
-                }
-
-                AudioEngine.win(); // Sonido de victoria
-                if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); // Patrón de vibración victoria
-
-                ui.finalTimeText.innerText = `${totalTime}s`;
-                ui.screenResult.classList.remove("hidden");
-                launchConfetti(); 
-                sendData(totalTime);
-            };
-
-            const sendData = (time) => {
-                const payload = { name: state.name, phone: state.phone, time: parseFloat(time), v: btoa(state.name + time) };
-
-                fetch(CONFIG.webhookUrl, {
-                    method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload)
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if(data.posicion) {
-                        ui.rankText.style.animation = "none";
-                        ui.rankText.innerHTML = `¡Quedaste en la posición<br><span style="font-size: 2.2rem; color: #fff;">#${data.posicion}</span><br>de ${data.total} jugadores!`;
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
                     }
-                })
-                .catch(() => {
-                    // MODO OFFLINE: Si falla el internet, guarda en localStorage
-                    let pending = JSON.parse(localStorage.getItem("jungle_pending") || "[]");
-                    pending.push(payload);
-                    localStorage.setItem("jungle_pending", JSON.stringify(pending));
+                }());
+            }
+        };
 
-                    ui.rankText.style.animation = "none";
-                    ui.rankText.innerText = "¡Tiempo guardado localmente! Se sincronizará pronto.";
-                });
-            };
-
-            const launchConfetti = () => {
-                const myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true });
-                myConfetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, colors: ['#FCEE09', '#000000', '#ffffff'] });
-            };
-        })();
+        // Iniciar el juego
+        Game.init();
     </script>
 </body>
 </html>
