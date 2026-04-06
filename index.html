@@ -80,11 +80,11 @@
         .logo-wrapper { position: relative; width: var(--logo-size); height: var(--logo-size); display: none; z-index: 10; }
         .logo-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
         
-        /* LA CORRECCIÓN: Guía gris sólida y definida, sin blur ni transparencias */
+        /* LA CORRECCIÓN: Quitamos el color y aumentamos el contraste para bordes perfectos */
         .ghost { 
-            opacity: 1; /* 100% Sólido */
-            /* Este filtro pinta la imagen de un gris oscuro puro, manteniendo los bordes perfectos */
-            filter: brightness(0) invert(0.3); 
+            opacity: 1; 
+            /* Esto mantiene la textura y bordes exactos de tu imagen original, pero en tonos oscuros sólidos */
+            filter: grayscale(100%) brightness(35%) contrast(150%); 
             z-index: 1; 
         }
         
@@ -93,7 +93,7 @@
             z-index: 2; opacity: 1; 
             clip-path: inset(100% 0 0 0); -webkit-clip-path: inset(100% 0 0 0);
             transform: translateZ(0); will-change: clip-path;
-            filter: drop-shadow(0 0 15px rgba(252, 238, 9, 0.6)); /* Brillo sutil al llenar */
+            filter: drop-shadow(0 0 15px rgba(252, 238, 9, 0.6)); 
         }
 
         .big-text { font-size: 3.5rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
