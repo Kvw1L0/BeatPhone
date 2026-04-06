@@ -12,7 +12,7 @@
             --brand-color: #FCEE09; /* Amarillo Jungle */
             --dark-bg: rgba(10, 10, 10, 0.95);
             --logo-size: 350px; 
-            --bg-image: url('fondo.png'); /* Tu imagen de fondo */
+            --bg-image: url('fondo.png'); /* Imagen de fondo corregida a PNG */
         }
 
         * { box-sizing: border-box; }
@@ -48,7 +48,7 @@
 
         .panel {
             background: var(--dark-bg);
-            /* EL TRUCO PARA EL BORDE A MANO ALZADA */
+            /* Borde a mano alzada */
             border: 4px solid var(--brand-color);
             border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
             box-shadow: 
@@ -96,7 +96,6 @@
             width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900;
             background: var(--brand-color); color: #000;
             border: none; 
-            /* Borde orgánico para el botón */
             border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
             cursor: pointer;
             text-transform: uppercase; margin-top: 15px;
@@ -128,11 +127,13 @@
         }
         .ghost { opacity: 0.2; filter: grayscale(1); z-index: 1; }
         
-        /* OPTIMIZACIÓN DE LAG: Sin transition y sin filter: drop-shadow */
+        /* OPTIMIZACIÓN DE LAG: Aceleración GPU, sin transition y sin shadow */
         .full-color {
             z-index: 2; opacity: 1;
             clip-path: inset(100% 0 0 0);
             -webkit-clip-path: inset(100% 0 0 0);
+            transform: translateZ(0); 
+            will-change: clip-path;
         }
 
         .big-text { font-size: 4rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
@@ -202,7 +203,8 @@
     <script>
         (function() {
             const CONFIG = Object.freeze({
-                webhookUrl: "TU_URL_DE_GOOGLE_SCRIPT_AQUI", 
+                // URL DE GOOGLE APPS SCRIPT INTEGRADA
+                webhookUrl: "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec", 
                 targetBeats: 500, 
                 threshold: 15,
                 minTimePossible: 2.0 
@@ -213,7 +215,6 @@
                 name: "", phone: "", lastBeatTime: 0
             };
 
-            // OPTIMIZACIÓN: Control de fotogramas
             let animationPending = false;
 
             const ui = {
@@ -284,7 +285,6 @@
                 const progress = Math.min((state.beats / CONFIG.targetBeats) * 100, 100);
                 const clip = 100 - progress;
 
-                // OPTIMIZACIÓN: requestAnimationFrame
                 if (!animationPending) {
                     animationPending = true;
                     requestAnimationFrame(() => {
@@ -325,13 +325,11 @@
                     v: btoa(state.name + time) 
                 };
 
-                if(!CONFIG.webhookUrl.includes("https://script.google.com/macros/s/AKfycbyRaN6dJV6RZcsw8zFAHkjsMCF6P2clhLkFJYO8gKtJXodg4Dohb6Rx37pMicI5CM8NEQ/exec")) {
-                    fetch(CONFIG.webhookUrl, {
-                        method: "POST",
-                        mode: "no-cors",
-                        body: JSON.stringify(payload)
-                    }).catch(() => {});
-                }
+                fetch(CONFIG.webhookUrl, {
+                    method: "POST",
+                    mode: "no-cors",
+                    body: JSON.stringify(payload)
+                }).catch((error) => console.error("Error enviando datos:", error));
             };
 
             const launchConfetti = () => {
