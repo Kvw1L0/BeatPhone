@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>BATIPHONE</title>
+    <title>Desafío Jungle</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
     
     <style>
@@ -76,15 +76,15 @@
         .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 1rem; }
         .instruction-icon { font-size: 2rem; margin-right: 15px; background: #222; border-radius: 50%; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(252, 238, 9, 0.3); }
 
-        /* --- CONTENEDOR DEL JUEGO (REPARADO PARA EL CALCE PERFECTO) --- */
+        /* --- CONTENEDOR DEL JUEGO --- */
         .logo-wrapper { position: relative; width: var(--logo-size); height: var(--logo-size); display: none; z-index: 10; }
         .logo-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
         
-        /* La guía gris sólida */
+        /* LA CORRECCIÓN: Guía gris sólida y definida, sin blur ni transparencias */
         .ghost { 
-            opacity: 0.9; 
-            /* Este filtro convierte cualquier imagen en un bloque gris oscuro respetando la forma del PNG */
-            filter: brightness(0) invert(0.4); 
+            opacity: 1; /* 100% Sólido */
+            /* Este filtro pinta la imagen de un gris oscuro puro, manteniendo los bordes perfectos */
+            filter: brightness(0) invert(0.3); 
             z-index: 1; 
         }
         
@@ -93,7 +93,7 @@
             z-index: 2; opacity: 1; 
             clip-path: inset(100% 0 0 0); -webkit-clip-path: inset(100% 0 0 0);
             transform: translateZ(0); will-change: clip-path;
-            filter: drop-shadow(0 0 15px rgba(252, 238, 9, 0.6)); /* Brillo sutil */
+            filter: drop-shadow(0 0 15px rgba(252, 238, 9, 0.6)); /* Brillo sutil al llenar */
         }
 
         .big-text { font-size: 3.5rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
@@ -109,16 +109,16 @@
 
     <div id="screen-form" class="overlay">
         <div class="panel">
-            <h2>BATIPHONE</h2>
+            <h2>Ingresa para jugar</h2>
             <div class="form-group">
                 <label>Nombre:</label>
                 <input type="text" id="player-name" placeholder="Ej: Juan Pérez" autocomplete="name">
             </div>
             <div class="form-group">
                 <label>Número de Celular:</label>
-                <input type="tel" id="player-phone" placeholder="+569 1234 5678" autocomplete="tel" inputmode="numeric" pattern="[0-9]*">
+                <input type="tel" id="player-phone" placeholder="9 1234 5678" autocomplete="tel" inputmode="numeric" pattern="[0-9]*">
             </div>
-            <button id="btn-next">INGRESAR</button>
+            <button id="btn-next">Siguiente</button>
         </div>
     </div>
 
@@ -173,7 +173,6 @@
                 minTimePossible: 2.0 
             });
 
-            // UX: Motor de Audio Sintético
             const AudioEngine = {
                 ctx: null,
                 init: function() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
