@@ -3,23 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jungle Leaderboard</title>
+<title>Ranking Jungle</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
+
 <style>
+  /* ================= CONFIGURACIÓN VISUAL JUNGLE ================= */
   :root {
-    --dark-bg: #1A1A2E;
-    --neon-blue: #00A1E0;
-    --neon-pink: #FF00FF;
-    --amber: #FFC107;
-    --text-glow: 0 0 10px rgba(255, 193, 7, 0.5);
+    --brand-color: #FCEE09; /* Amarillo Jungle */
+    --dark-bg: #000000;
+    --text-glow: 0 0 15px rgba(252, 238, 9, 0.6);
+    --organic-border: 255px 15px 225px 15px/15px 225px 15px 255px; /* Efecto mano alzada */
   }
 
   body {
     background-color: var(--dark-bg);
-    background-image: url("fondo.jpg"); /* Misma imagen que el juego */
+    background-image: url("fondo.png"); /* Asegurado en PNG como el juego */
     background-size: cover;
     background-position: center;
     color: white;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Montserrat', sans-serif;
     margin: 0;
     height: 100vh;
     overflow: hidden;
@@ -28,11 +30,11 @@
     align-items: center;
   }
 
-  /* Capa oscura para leer mejor */
+  /* Capa oscura para leer mejor el ranking sobre la imagen de fondo */
   .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(26, 26, 46, 0.85);
+    background: rgba(10, 10, 10, 0.85); /* Negro casi sólido con leve transparencia */
     z-index: -1;
   }
 
@@ -40,20 +42,20 @@
     font-size: 4em;
     margin: 30px 0 20px 0;
     text-transform: uppercase;
-    color: var(--neon-blue);
-    text-shadow: 0 0 20px var(--neon-blue);
-    font-style: italic;
+    color: var(--brand-color);
+    text-shadow: 3px 3px 0px #000;
+    font-weight: 900;
     letter-spacing: 2px;
   }
 
   .container {
     width: 80%;
     max-width: 1000px;
-    background: rgba(0, 0, 0, 0.5);
-    border: 2px solid var(--neon-pink);
-    border-radius: 20px;
+    background: rgba(10, 10, 10, 0.8);
+    border: 4px solid var(--brand-color);
+    border-radius: var(--organic-border);
     padding: 20px;
-    box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);
+    box-shadow: 0 0 20px rgba(252, 238, 9, 0.3), inset 0 0 15px rgba(252, 238, 9, 0.1);
     backdrop-filter: blur(5px);
   }
 
@@ -62,9 +64,9 @@
     justify-content: space-between;
     padding: 15px 30px;
     font-size: 1.5em;
-    font-weight: bold;
-    border-bottom: 2px solid var(--neon-blue);
-    color: var(--neon-blue);
+    font-weight: 900;
+    border-bottom: 3px solid var(--brand-color);
+    color: var(--brand-color);
     text-transform: uppercase;
   }
 
@@ -79,17 +81,19 @@
     justify-content: space-between;
     padding: 15px 30px;
     font-size: 2em;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 700;
+    border-bottom: 1px solid rgba(252, 238, 9, 0.2);
     animation: fadeIn 0.5s ease-out;
   }
 
-  .rank-item:nth-child(1) { color: var(--amber); font-weight: 900; font-size: 2.5em; text-shadow: var(--text-glow); }
-  .rank-item:nth-child(2) { color: silver; font-weight: 700; }
-  .rank-item:nth-child(3) { color: #cd7f32; font-weight: 700; }
+  /* Estilos para el Top 3 */
+  .rank-item:nth-child(1) { color: var(--brand-color); font-weight: 900; font-size: 2.5em; text-shadow: var(--text-glow); }
+  .rank-item:nth-child(2) { color: #E0E0E0; font-size: 2.2em; text-shadow: 0 0 10px rgba(255,255,255,0.4); } /* Plata */
+  .rank-item:nth-child(3) { color: #CD7F32; font-size: 2.1em; } /* Bronce */
 
   .rank-pos { width: 50px; }
   .rank-name { flex-grow: 1; text-align: left; padding-left: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-  .rank-time { font-family: monospace; }
+  .rank-time { font-family: monospace; font-weight: 900; }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -100,7 +104,16 @@
     text-align: center;
     font-size: 1.5em;
     padding: 40px;
-    color: rgba(255,255,255,0.5);
+    color: var(--brand-color);
+    opacity: 0.7;
+    text-transform: uppercase;
+    font-weight: bold;
+    animation: pulse 1.5s infinite alternate;
+  }
+
+  @keyframes pulse {
+    from { opacity: 0.4; }
+    to { opacity: 1; }
   }
 
 </style>
@@ -109,7 +122,7 @@
 
 <div class="overlay"></div>
 
-<h1>🏆 Ranking BATIPHONE 🏆 </h1>
+<h1>🏆 RANKING JUNGLE 🏆 </h1>
 
 <div class="container">
   <div class="header-row">
@@ -124,23 +137,21 @@
 </div>
 
 <script>
-  // 👇 PEGA AQUÍ LA MISMA URL QUE USASTE EN EL JUEGO 👇
+  // La URL original intacta
   const API_URL = "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec";
+  
   async function updateRanking() {
     try {
-      // Fetch a la misma URL (Apps Script detecta automáticamente si es GET o POST)
       const response = await fetch(API_URL);
       const data = await response.json();
 
       const list = document.getElementById("ranking-list");
-      list.innerHTML = ""; // Limpiar lista actual
+      list.innerHTML = ""; 
 
-      // Generar filas
       data.forEach((player, index) => {
         const li = document.createElement("li");
         li.className = "rank-item";
         
-        // Agregar icono de medalla a los top 3
         let icon = "";
         if (index === 0) icon = "👑 ";
         else if (index === 1) icon = "🥈 ";
@@ -159,11 +170,8 @@
     }
   }
 
-  // Cargar al inicio
   updateRanking();
-
-  // Actualizar automáticamente cada 2 segundos
-  setInterval(updateRanking, 2000);
+  setInterval(updateRanking, 2000); // Actualiza cada 2 segundos
 
 </script>
 
