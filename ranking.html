@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ranking Jungle</title>
+<title>Ranking BATIPHONE</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
 
 <style>
   /* ================= CONFIGURACIÓN VISUAL JUNGLE ================= */
   :root {
-    --brand-color: #FCEE09; /* Amarillo Jungle */
+    --brand-color: #FCEE09; 
     --dark-bg: #000000;
     --text-glow: 0 0 15px rgba(252, 238, 9, 0.6);
-    --organic-border: 255px 15px 225px 15px/15px 225px 15px 255px; /* Efecto mano alzada */
+    --organic-border: 255px 15px 225px 15px/15px 225px 15px 255px; 
   }
 
   body {
     background-color: var(--dark-bg);
-    background-image: url("fondo.png"); /* Asegurado en PNG como el juego */
+    background-image: url("fondo.png");
     background-size: cover;
     background-position: center;
     color: white;
@@ -30,42 +30,46 @@
     align-items: center;
   }
 
-  /* Capa oscura para leer mejor el ranking sobre la imagen de fondo */
   .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(10, 10, 10, 0.85); /* Negro casi sólido con leve transparencia */
+    background: rgba(10, 10, 10, 0.85); 
     z-index: -1;
   }
 
+  /* ================= ESTILOS MOBILE FIRST (Por defecto) ================= */
+  
   h1 {
-    font-size: 4em;
-    margin: 30px 0 20px 0;
+    font-size: 2.2rem; /* Tamaño más pequeño para celular */
+    margin: 20px 0 15px 0;
     text-transform: uppercase;
     color: var(--brand-color);
-    text-shadow: 3px 3px 0px #000;
+    text-shadow: 2px 2px 0px #000;
     font-weight: 900;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
+    text-align: center;
   }
 
   .container {
-    width: 80%;
+    width: 95%; /* Casi el ancho total del celular */
     max-width: 1000px;
     background: rgba(10, 10, 10, 0.8);
-    border: 4px solid var(--brand-color);
+    border: 3px solid var(--brand-color); /* Borde un poco más fino */
     border-radius: var(--organic-border);
-    padding: 20px;
-    box-shadow: 0 0 20px rgba(252, 238, 9, 0.3), inset 0 0 15px rgba(252, 238, 9, 0.1);
+    padding: 15px 10px; /* Menos relleno interno */
+    box-shadow: 0 0 15px rgba(252, 238, 9, 0.3), inset 0 0 10px rgba(252, 238, 9, 0.1);
     backdrop-filter: blur(5px);
+    overflow-y: auto; /* Por si el ranking crece, permite hacer scroll en el celular */
+    max-height: 80vh; 
   }
 
   .header-row {
     display: flex;
     justify-content: space-between;
-    padding: 15px 30px;
-    font-size: 1.5em;
+    padding: 10px 15px;
+    font-size: 1rem; /* Letra de cabecera adaptada */
     font-weight: 900;
-    border-bottom: 3px solid var(--brand-color);
+    border-bottom: 2px solid var(--brand-color);
     color: var(--brand-color);
     text-transform: uppercase;
   }
@@ -79,20 +83,28 @@
   .rank-item {
     display: flex;
     justify-content: space-between;
-    padding: 15px 30px;
-    font-size: 2em;
+    align-items: center;
+    padding: 12px 15px;
+    font-size: 1.1rem; /* Texto base para los de abajo */
     font-weight: 700;
     border-bottom: 1px solid rgba(252, 238, 9, 0.2);
     animation: fadeIn 0.5s ease-out;
   }
 
-  /* Estilos para el Top 3 */
-  .rank-item:nth-child(1) { color: var(--brand-color); font-weight: 900; font-size: 2.5em; text-shadow: var(--text-glow); }
-  .rank-item:nth-child(2) { color: #E0E0E0; font-size: 2.2em; text-shadow: 0 0 10px rgba(255,255,255,0.4); } /* Plata */
-  .rank-item:nth-child(3) { color: #CD7F32; font-size: 2.1em; } /* Bronce */
+  /* Tamaños ajustados para el Top 3 en celular */
+  .rank-item:nth-child(1) { color: var(--brand-color); font-weight: 900; font-size: 1.5rem; text-shadow: var(--text-glow); }
+  .rank-item:nth-child(2) { color: #E0E0E0; font-size: 1.3rem; text-shadow: 0 0 10px rgba(255,255,255,0.4); } 
+  .rank-item:nth-child(3) { color: #CD7F32; font-size: 1.2rem; } 
 
-  .rank-pos { width: 50px; }
-  .rank-name { flex-grow: 1; text-align: left; padding-left: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+  .rank-pos { width: 30px; text-align: center; }
+  .rank-name { 
+    flex-grow: 1; 
+    text-align: left; 
+    padding-left: 10px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; /* Pone "..." si el nombre es muy largo */
+  }
   .rank-time { font-family: monospace; font-weight: 900; }
 
   @keyframes fadeIn {
@@ -101,19 +113,42 @@
   }
 
   .loading {
-    text-align: center;
-    font-size: 1.5em;
-    padding: 40px;
-    color: var(--brand-color);
-    opacity: 0.7;
-    text-transform: uppercase;
-    font-weight: bold;
+    text-align: center; font-size: 1.2rem; padding: 30px;
+    color: var(--brand-color); opacity: 0.7; text-transform: uppercase; font-weight: bold;
     animation: pulse 1.5s infinite alternate;
   }
 
-  @keyframes pulse {
-    from { opacity: 0.4; }
-    to { opacity: 1; }
+  @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
+
+  /* ================= ADAPTACIÓN PARA ESCRITORIO / TV (Tablets en adelante) ================= */
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 4em;
+      margin: 30px 0 20px 0;
+      letter-spacing: 2px;
+    }
+    .container {
+      width: 80%;
+      padding: 20px;
+      border: 4px solid var(--brand-color);
+    }
+    .header-row {
+      font-size: 1.5em;
+      padding: 15px 30px;
+      border-bottom: 3px solid var(--brand-color);
+    }
+    .rank-item {
+      font-size: 2em;
+      padding: 15px 30px;
+    }
+    .rank-pos { width: 50px; }
+    .rank-name { padding-left: 20px; }
+    
+    .rank-item:nth-child(1) { font-size: 2.5em; }
+    .rank-item:nth-child(2) { font-size: 2.2em; }
+    .rank-item:nth-child(3) { font-size: 2.1em; }
+    
+    .loading { font-size: 1.5em; padding: 40px; }
   }
 
 </style>
@@ -126,9 +161,9 @@
 
 <div class="container">
   <div class="header-row">
-    <span>#</span>
-    <span>Jugador</span>
-    <span>Tiempo (s)</span>
+    <span class="rank-pos">#</span>
+    <span class="rank-name">Jugador</span>
+    <span class="rank-time">Tiempo</span>
   </div>
   
   <ul id="ranking-list">
@@ -137,7 +172,7 @@
 </div>
 
 <script>
-  // La URL original intacta
+  // La URL de tu Google Script
   const API_URL = "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec";
   
   async function updateRanking() {
@@ -171,7 +206,7 @@
   }
 
   updateRanking();
-  setInterval(updateRanking, 2000); // Actualiza cada 2 segundos
+  setInterval(updateRanking, 2000);
 
 </script>
 
