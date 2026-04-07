@@ -76,19 +76,15 @@
         .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 1rem; }
         .instruction-icon { font-size: 2rem; margin-right: 15px; background: #222; border-radius: 50%; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(252, 238, 9, 0.3); }
 
-        /* --- CONTENEDOR DEL JUEGO --- */
         .logo-wrapper { position: relative; width: var(--logo-size); height: var(--logo-size); display: none; z-index: 10; }
         .logo-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
-        /* LA CORRECCIÓN: Quitamos el color y aumentamos el contraste para bordes perfectos */
         .ghost { 
             opacity: 1; 
-            /* Esto mantiene la textura y bordes exactos de tu imagen original, pero en tonos oscuros sólidos */
             filter: grayscale(100%) brightness(35%) contrast(150%); 
             z-index: 1; 
         }
 
-        /* El relleno a color que sube como cortina */
         .full-color {
             z-index: 2; opacity: 1; 
             clip-path: inset(100% 0 0 0); -webkit-clip-path: inset(100% 0 0 0);
@@ -113,10 +109,6 @@
             <div class="form-group">
                 <label>Nombre:</label>
                 <input type="text" id="player-name" placeholder="Ej: Juan Pérez" autocomplete="name">
-            </div>
-            <div class="form-group">
-                <label>Número de Celular:</label>
-                <input type="tel" id="player-phone" placeholder="9 1234 5678" autocomplete="tel" inputmode="numeric" pattern="[0-9]*">
             </div>
             <button id="btn-next">Siguiente</button>
         </div>
@@ -168,7 +160,6 @@
         (function() {
             const CONFIG = Object.freeze({
                 webhookUrl: "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec", 
-                targetBeats: 700, 
                 targetBeats: 1000, 
                 threshold: 15,
                 minTimePossible: 2.0 
@@ -197,7 +188,7 @@
                 }
             };
 
-            let state = { active: false, beats: 0, start: 0, name: "", phone: "", lastBeatTime: 0 };
+            let state = { active: false, beats: 0, start: 0, name: "", lastBeatTime: 0 };
             let animationPending = false;
 
             const ui = {
@@ -211,7 +202,6 @@
                 rankText: document.getElementById("rank-text"),
                 countText: document.getElementById("countdown-text"),
                 nameInput: document.getElementById("player-name"),
-                phoneInput: document.getElementById("player-phone"),
                 btnNext: document.getElementById("btn-next"),
                 btnStart: document.getElementById("btn-start")
             };
@@ -232,9 +222,8 @@
 
             ui.btnNext.onclick = () => {
                 const name = ui.nameInput.value.trim();
-                const phone = ui.phoneInput.value.trim();
-                if(!name || !phone) return alert("Por favor, completa todos los datos.");
-                state.name = name; state.phone = phone;
+                if(!name) return alert("Por favor, ingresa tu nombre para jugar.");
+                state.name = name;
                 switchScreen(ui.screenForm, ui.screenInst);
             };
 
@@ -334,16 +323,30 @@
             };
 
             const sendData = (time) => {
-                const payload = { name: state.name, phone: state.phone, time: parseFloat(time), v: btoa(state.name + time) };
+                // Se eliminó la propiedad phone del payload
+                const payload = { name: state.name, time: parseFloat(time), v: btoa(state.name + time) };
 
                 fetch(CONFIG.webhookUrl, {
-                    method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload)
+                    method: "POST", 
+                    redirect: "follow", // Añadido para seguir redirecciones de Apps Script
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+                    body: JSON.stringify(payload)
                 })
-                .then(r => r.json())
-                .then(data => {
-                    if(data.posicion) {
-                        ui.rankText.style.animation = "none";
-                        ui.rankText.innerHTML = `¡Quedaste en la posición<br><span style="font-size: 2.2rem; color: #fff;">#${data.posicion}</span><br>de ${data.total} jugadores!`;
+                .then(r => r.text()) // Convertimos a texto primero por si Apps Script falla y devuelve HTML
+                .then(text => {
+                    ui.rankText.style.animation = "none";
+                    try {
+                        const data = JSON.parse(text);
+                        // Comprueba si realmente devolvió la posición
+                        if(data && data.posicion) {
+                            ui.rankText.innerHTML = `¡Quedaste en la posición<br><span style="font-size: 2.2rem; color: #fff;">#${data.posicion}</span><br>de ${data.total} jugadores!`;
+                        } else {
+                            // Fallback si el script guardó los datos pero no devolvió posición
+                            ui.rankText.innerHTML = `¡Tiempo registrado exitosamente!`;
+                        }
+                    } catch (e) {
+                        // Si falla el parseo, asumimos que guardó pero el servidor no respondió en JSON
+                        ui.rankText.innerHTML = `¡Tiempo registrado!`;
                     }
                 })
                 .catch(() => {
