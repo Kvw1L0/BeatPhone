@@ -2,17 +2,17 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Desafío Jungle</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
     
     <style>
-        /* ================= CONFIGURACIÓN ================= */
+        /* ================= CONFIGURACIÓN VISUAL JUNGLE ================= */
         :root {
-            --brand-color: #FCEE09; 
+            --brand-color: #FCEE09; /* Amarillo Jungle */
             --dark-bg: rgba(10, 10, 10, 0.95);
             --logo-size: 350px; 
-            --bg-image: url('fondo.png'); 
+            --bg-image: url('fondo.png'); /* Imagen de fondo corregida a PNG */
         }
 
         * { box-sizing: border-box; }
@@ -26,71 +26,85 @@
             height: 100vh;
             width: 100vw;
             overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
             background-color: #000;
             background-image: var(--bg-image);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            /* Eliminado el user-select global que causaba el bug */
         }
 
-        /* --- CLASE MAESTRA PARA OCULTAR (A PRUEBA DE FALLOS) --- */
-        .hidden { 
-            display: none !important; 
-        }
-
+        /* --- PANELES (FORMULARIO E INSTRUCCIONES) --- */
         .overlay {
             position: fixed; inset: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(5px);
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             z-index: 100;
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         .panel {
             background: var(--dark-bg);
+            /* Borde a mano alzada */
             border: 4px solid var(--brand-color);
             border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            box-shadow: 0 0 20px rgba(252, 238, 9, 0.6), inset 0 0 15px rgba(252, 238, 9, 0.2);
+            box-shadow: 
+                0 0 15px rgba(252, 238, 9, 0.4), 
+                inset 0 0 10px rgba(252, 238, 9, 0.1);
             padding: 35px 25px;
             width: 90%;
             max-width: 400px;
             text-align: center;
+            position: relative;
+        }
+
+        .hidden { 
+            opacity: 0; 
+            pointer-events: none; 
+            transform: scale(0.9);
+            position: absolute;
         }
 
         h2 { 
-            color: var(--brand-color); font-size: 1.8rem; 
-            margin-top: 0; margin-bottom: 20px;
+            color: var(--brand-color); 
+            font-size: 1.8rem; 
+            margin-top: 0; 
+            margin-bottom: 20px;
             text-transform: uppercase;
-            text-shadow: 2px 2px 0px #000, 0 0 10px rgba(252, 238, 9, 0.5);
+            text-shadow: 2px 2px 0px #000;
         }
 
         .form-group { text-align: left; margin-bottom: 15px; }
-        .form-group label { color: #fff; font-size: 0.9rem; margin-bottom: 5px; display: block; text-transform: uppercase;}
+        .form-group label { color: #fff; font-size: 0.9rem; margin-bottom: 5px; display: block; }
         
         input {
             width: 100%; padding: 15px; font-size: 1.1rem;
             background: #111; color: var(--brand-color);
+            /* Borde a mano alzada también en los inputs */
             border: 2px solid #444; 
             border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
             font-family: 'Montserrat', sans-serif; font-weight: bold;
-            outline: none;
-            /* REGLA CRÍTICA PARA QUE SE PUEDA ESCRIBIR EN CELULARES */
-            user-select: text; -webkit-user-select: text;
+            transition: border-color 0.3s;
         }
-        input:focus { border-color: var(--brand-color); box-shadow: 0 0 10px rgba(252, 238, 9, 0.3);}
-        input::placeholder { color: #555; font-weight: normal; }
+        input:focus { outline: none; border-color: var(--brand-color); }
+        input::placeholder { color: #666; font-weight: normal; }
 
         button {
             width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900;
             background: var(--brand-color); color: #000;
-            border: none; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            cursor: pointer; text-transform: uppercase; margin-top: 15px;
-            box-shadow: 0 5px 0px #b5aa05, 0 0 20px rgba(252, 238, 9, 0.4);
+            border: none; 
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            cursor: pointer;
+            text-transform: uppercase; margin-top: 15px;
+            box-shadow: 0 5px 0px #b5aa05;
+            transition: transform 0.1s, box-shadow 0.1s;
         }
         button:active { transform: translateY(5px); box-shadow: 0 0px 0px #b5aa05; }
 
+        /* --- INSTRUCCIONES --- */
         .instruction-item {
             display: flex; align-items: center; text-align: left;
             margin-bottom: 20px; color: #fff; font-size: 1rem;
@@ -98,49 +112,36 @@
         .instruction-icon {
             font-size: 2rem; margin-right: 15px;
             background: #222; border-radius: 50%; padding: 10px;
-            border: 2px solid var(--brand-color);
-            box-shadow: 0 0 15px rgba(252, 238, 9, 0.5);
+            border: 1px solid var(--brand-color);
+            box-shadow: 0 0 10px rgba(252, 238, 9, 0.3);
         }
 
-        #screen-countdown { background: rgba(0,0,0,0.85); }
-        .countdown-text {
-            font-size: 10rem; font-weight: 900; color: var(--brand-color);
-            text-shadow: 0 0 30px var(--brand-color), 4px 4px 0 #000;
-            animation: pulseIn 1s infinite;
-        }
-
+        /* --- JUEGO --- */
         .logo-wrapper {
             position: relative; width: var(--logo-size); height: var(--logo-size);
             display: none; z-index: 10;
-            /* Aquí sí evitamos que el usuario seleccione la imagen por error */
-            user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
         }
         .logo-img {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%; object-fit: contain; pointer-events: none;
         }
-        .ghost { opacity: 0.15; filter: grayscale(1); z-index: 1; }
+        .ghost { opacity: 0.2; filter: grayscale(1); z-index: 1; }
+        
+        /* OPTIMIZACIÓN DE LAG: Aceleración GPU, sin transition y sin shadow */
         .full-color {
             z-index: 2; opacity: 1;
-            filter: drop-shadow(0 0 25px rgba(252, 238, 9, 0.9));
-            clip-path: inset(100% 0 0 0); -webkit-clip-path: inset(100% 0 0 0);
-            transform: translateZ(0); will-change: clip-path;
+            clip-path: inset(100% 0 0 0);
+            -webkit-clip-path: inset(100% 0 0 0);
+            transform: translateZ(0); 
+            will-change: clip-path;
         }
 
-        .big-text { 
-            font-size: 5rem; margin: 10px 0; font-weight: 900; 
-            color: var(--brand-color); text-shadow: 0 0 20px var(--brand-color), 3px 3px 0 #000;
-        }
+        .big-text { font-size: 4rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
         
         #confetti-canvas { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            position: fixed; top: 0; left: 0; 
+            width: 100vw; height: 100vh; 
             pointer-events: none; z-index: 200; 
-        }
-
-        @keyframes pulseIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -151,7 +152,11 @@
             <h2>Ingresa para jugar</h2>
             <div class="form-group">
                 <label>Nombre:</label>
-                <input type="text" id="player-name" placeholder="Ej: Juan Pérez" autocomplete="off">
+                <input type="text" id="player-name" placeholder="Ej: Juan Pérez">
+            </div>
+            <div class="form-group">
+                <label>Número de Celular:</label>
+                <input type="tel" id="player-phone" placeholder="(+56) 9...">
             </div>
             <button id="btn-next">Siguiente</button>
         </div>
@@ -160,38 +165,36 @@
     <div id="screen-instructions" class="overlay hidden">
         <div class="panel">
             <h2>Cómo Jugar</h2>
+            
             <div class="instruction-item">
                 <div class="instruction-icon">📱</div>
-                <div>Agita tu celular rápidamente para cargar la energía neón.</div>
+                <div>Agita tu celular rápidamente para cargar la energía.</div>
             </div>
             <div class="instruction-item">
                 <div class="instruction-icon">⏱️</div>
-                <div>El tiempo más rápido gana. ¡Dale con todo!</div>
+                <div>El tiempo más rápido se lleva el premio.</div>
             </div>
             <div class="instruction-item">
                 <div class="instruction-icon">👆</div>
-                <div>Si no puedes agitar, tapea rápido la lata.</div>
+                <div>Si no puedes agitar, tapea rápido la pantalla.</div>
             </div>
+
             <button id="btn-start">¡LISTO, VAMOS!</button>
         </div>
-    </div>
-
-    <div id="screen-countdown" class="overlay hidden">
-        <div class="countdown-text" id="countdown-number">3</div>
     </div>
 
     <div id="screen-result" class="overlay hidden">
         <div class="panel">
             <h2>¡Carga Completa!</h2>
-            <p style="color: white; font-size:1.2rem; margin:0; text-transform:uppercase; font-weight:700;">Tu tiempo fue:</p>
+            <p style="color: white; font-size:1.2rem; margin:0;">Tu tiempo fue:</p>
             <p class="big-text" id="final-time">0.00s</p>
-            <button id="btn-reload">Jugar de nuevo</button>
+            <button onclick="location.reload()">Jugar de nuevo</button>
         </div>
     </div>
 
     <div id="game-container" class="logo-wrapper">
-        <img src="logo.png" class="logo-img ghost" alt="Lata Fondo">
-        <img src="logo.png" id="full-image" class="logo-img full-color" alt="Lata Neón">
+        <img src="logo.png" class="logo-img ghost" alt="Logo Fondo">
+        <img src="logo.png" id="full-image" class="logo-img full-color" alt="Logo Color">
     </div>
 
     <canvas id="confetti-canvas"></canvas>
@@ -200,103 +203,63 @@
     <script>
         (function() {
             const CONFIG = Object.freeze({
+                // URL DE GOOGLE APPS SCRIPT INTEGRADA
                 webhookUrl: "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec", 
                 targetBeats: 500, 
-                threshold: 15, 
+                threshold: 15,
                 minTimePossible: 2.0 
             });
 
-            let state = { active: false, countdownActive: false, beats: 0, start: 0, name: "", lastBeatTime: 0 };
+            let state = {
+                active: false, beats: 0, start: 0,
+                name: "", phone: "", lastBeatTime: 0
+            };
+
             let animationPending = false;
 
             const ui = {
                 screenForm: document.getElementById("screen-form"),
                 screenInstructions: document.getElementById("screen-instructions"),
-                screenCountdown: document.getElementById("screen-countdown"),
                 screenResult: document.getElementById("screen-result"),
-                countdownNumber: document.getElementById("countdown-number"),
                 gameContainer: document.getElementById("game-container"),
                 fullImage: document.getElementById("full-image"),
                 finalTimeText: document.getElementById("final-time"),
                 nameInput: document.getElementById("player-name"),
+                phoneInput: document.getElementById("player-phone"),
                 btnNext: document.getElementById("btn-next"),
-                btnStart: document.getElementById("btn-start"),
-                btnReload: document.getElementById("btn-reload")
+                btnStart: document.getElementById("btn-start")
             };
 
-            // Flujo 1: Botón Siguiente
-            ui.btnNext.addEventListener('click', () => {
+            ui.btnNext.onclick = () => {
                 const name = ui.nameInput.value.trim();
+                const phone = ui.phoneInput.value.trim();
                 
-                // Validación visual sin alertas que bloqueen
-                if(!name) { 
-                    ui.nameInput.style.borderColor = "#ff3333";
-                    ui.nameInput.placeholder = "¡FALTA TU NOMBRE!";
-                    ui.nameInput.focus();
-                    return; 
+                if(!name || !phone) {
+                    alert("Por favor, completa todos los datos para continuar.");
+                    return;
                 }
-                
-                ui.nameInput.style.borderColor = "var(--brand-color)";
-                state.name = name;
-                
-                // Transición segura
-                ui.screenForm.classList.add("hidden");
-                ui.screenInstructions.classList.remove("hidden");
-            });
 
-            // Flujo 2: Botón Iniciar
-            ui.btnStart.addEventListener('click', async () => {
+                state.name = name;
+                state.phone = phone;
+
+                ui.screenForm.classList.add("hidden");
+                setTimeout(() => ui.screenInstructions.classList.remove("hidden"), 300);
+            };
+
+            ui.btnStart.onclick = async () => {
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
                     try {
                         const resp = await DeviceMotionEvent.requestPermission();
-                        if (resp !== 'granted') console.log("Sensores no autorizados.");
+                        if (resp !== 'granted') console.log("Sensor denegado. Usará clics.");
                     } catch (e) { console.error(e); }
                 }
 
                 ui.screenInstructions.classList.add("hidden");
                 ui.gameContainer.style.display = "block";
                 
-                startCountdown();
-            });
-
-            // Botón Recargar
-            ui.btnReload.addEventListener('click', () => {
-                location.reload();
-            });
-
-            // Lógica Cuenta Regresiva
-            const startCountdown = () => {
-                state.countdownActive = true;
-                ui.screenCountdown.classList.remove("hidden");
-                
-                let count = 3;
-                ui.countdownNumber.innerText = count;
-                if(navigator.vibrate) navigator.vibrate(100);
-
-                const interval = setInterval(() => {
-                    count--;
-                    if (count > 0) {
-                        ui.countdownNumber.innerText = count;
-                        if(navigator.vibrate) navigator.vibrate(100);
-                    } else if (count === 0) {
-                        ui.countdownNumber.innerText = "¡GO!";
-                        if(navigator.vibrate) navigator.vibrate(300);
-                    } else {
-                        clearInterval(interval);
-                        ui.screenCountdown.classList.add("hidden");
-                        state.countdownActive = false;
-                        startGame();
-                    }
-                }, 1000); 
-            };
-
-            const startGame = () => {
                 state.active = true;
-                state.start = Date.now(); 
+                state.start = Date.now();
                 state.beats = 0;
-
-                ui.fullImage.style.clipPath = `inset(100% 0 0 0)`;
-                ui.fullImage.style.webkitClipPath = `inset(100% 0 0 0)`;
 
                 window.addEventListener("devicemotion", handleMotion);
                 ui.gameContainer.addEventListener("click", handleTap);
@@ -322,8 +285,6 @@
                 const progress = Math.min((state.beats / CONFIG.targetBeats) * 100, 100);
                 const clip = 100 - progress;
 
-                if(navigator.vibrate) navigator.vibrate(20);
-
                 if (!animationPending) {
                     animationPending = true;
                     requestAnimationFrame(() => {
@@ -344,26 +305,31 @@
                 const totalTime = ((endTime - state.start) / 1000).toFixed(2);
 
                 if (totalTime < CONFIG.minTimePossible) {
-                    alert("¡Demasiado rápido! Intenta de nuevo.");
+                    alert("¡Demasiado rápido! Parece un error o trampa.");
                     location.reload();
                     return;
                 }
 
-                if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
-
                 ui.finalTimeText.innerText = `${totalTime}s`;
                 ui.screenResult.classList.remove("hidden");
-                ui.gameContainer.style.display = "none"; // Oculta la lata al ganar para ver el panel
                 
                 launchConfetti();
                 sendData(totalTime);
             };
 
             const sendData = (time) => {
-                const payload = { name: state.name, time: time, v: btoa(state.name + time) };
+                const payload = {
+                    name: state.name,
+                    phone: state.phone,
+                    time: time,
+                    v: btoa(state.name + time) 
+                };
+
                 fetch(CONFIG.webhookUrl, {
-                    method: "POST", mode: "no-cors", body: JSON.stringify(payload)
-                }).catch((error) => console.error("Error:", error));
+                    method: "POST",
+                    mode: "no-cors",
+                    body: JSON.stringify(payload)
+                }).catch((error) => console.error("Error enviando datos:", error));
             };
 
             const launchConfetti = () => {
