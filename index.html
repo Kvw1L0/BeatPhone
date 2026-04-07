@@ -8,7 +8,7 @@
     
     <style>
         :root {
-            --brand-color: #FCEE09; 
+            --brand-color: #FCEE09;
             --dark-bg: rgba(10, 10, 10, 0.95);
             --logo-size: 350px; 
             --bg-image: url('fondo.png'); 
@@ -17,19 +17,31 @@
         * { box-sizing: border-box; }
 
         body {
-            margin: 0; font-family: 'Montserrat', sans-serif;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; width: 100vw; overflow: hidden;
-            user-select: none; -webkit-tap-highlight-color: transparent;
-            background-color: #000; background-image: var(--bg-image);
-            background-size: cover; background-position: center; background-repeat: no-repeat;
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            background-color: #000;
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         .overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 100;
-            transition: opacity 0.4s ease, transform 0.4s ease;
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 100;
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         .panel {
@@ -37,13 +49,23 @@
             border: 4px solid var(--brand-color);
             border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
             box-shadow: 0 0 15px rgba(252, 238, 9, 0.4), inset 0 0 10px rgba(252, 238, 9, 0.1);
-            padding: 35px 25px; width: 90%; max-width: 400px;
-            text-align: center; position: relative;
+            padding: 35px 25px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
         }
 
-        .hidden { opacity: 0; pointer-events: none; transform: scale(0.95); position: absolute; }
+        .hidden { 
+            opacity: 0; pointer-events: none; 
+            transform: scale(0.9); position: absolute;
+        }
 
-        h2 { color: var(--brand-color); font-size: 1.8rem; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; text-shadow: 2px 2px 0px #000; }
+        h2 { 
+            color: var(--brand-color); font-size: 1.8rem; 
+            margin-top: 0; margin-bottom: 20px;
+            text-transform: uppercase; text-shadow: 2px 2px 0px #000;
+        }
 
         .form-group { text-align: left; margin-bottom: 15px; }
         .form-group label { color: #fff; font-size: 0.9rem; margin-bottom: 5px; display: block; }
@@ -51,11 +73,13 @@
         input {
             width: 100%; padding: 15px; font-size: 1.1rem;
             background: #111; color: var(--brand-color);
-            border: 2px solid #444; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            font-family: 'Montserrat', sans-serif; font-weight: bold; transition: border-color 0.3s;
+            border: 2px solid #444; 
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            font-family: 'Montserrat', sans-serif; font-weight: bold;
+            transition: border-color 0.3s;
         }
         input:focus { outline: none; border-color: var(--brand-color); }
-        #player-name { text-transform: capitalize; }
+        input::placeholder { color: #666; font-weight: normal; }
 
         button {
             width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900;
@@ -66,43 +90,39 @@
         }
         button:active { transform: translateY(5px); box-shadow: 0 0px 0px #b5aa05; }
 
-        .btn-secondary {
-            background: #111; color: var(--brand-color);
-            border: 2px solid var(--brand-color);
-            box-shadow: 0 5px 0px rgba(252, 238, 9, 0.3); margin-top: 25px;
+        .instruction-item {
+            display: flex; align-items: center; text-align: left;
+            margin-bottom: 20px; color: #fff; font-size: 1rem;
         }
-        .btn-secondary:active { box-shadow: 0 0px 0px rgba(252, 238, 9, 0.3); }
-
-        .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 1rem; }
-        .instruction-icon { font-size: 2rem; margin-right: 15px; background: #222; border-radius: 50%; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(252, 238, 9, 0.3); }
-
-        /* --- CONTENEDOR DEL JUEGO --- */
-        .logo-wrapper { position: relative; width: var(--logo-size); height: var(--logo-size); display: none; z-index: 10; }
-        .logo-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-        
-        /* LA CORRECCIÓN: Quitamos el color y aumentamos el contraste para bordes perfectos */
-        .ghost { 
-            opacity: 1; 
-            /* Esto mantiene la textura y bordes exactos de tu imagen original, pero en tonos oscuros sólidos */
-            filter: grayscale(100%) brightness(35%) contrast(150%); 
-            z-index: 1; 
+        .instruction-icon {
+            font-size: 2rem; margin-right: 15px;
+            background: #222; border-radius: 50%; padding: 10px;
+            border: 1px solid var(--brand-color);
+            box-shadow: 0 0 10px rgba(252, 238, 9, 0.3);
         }
+
+        .logo-wrapper {
+            position: relative; width: var(--logo-size); height: var(--logo-size);
+            display: none; z-index: 10;
+        }
+        .logo-img {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; object-fit: contain; pointer-events: none;
+        }
+        .ghost { opacity: 0.2; filter: grayscale(1); z-index: 1; }
         
-        /* El relleno a color que sube como cortina */
         .full-color {
-            z-index: 2; opacity: 1; 
+            z-index: 2; opacity: 1;
             clip-path: inset(100% 0 0 0); -webkit-clip-path: inset(100% 0 0 0);
             transform: translateZ(0); will-change: clip-path;
-            filter: drop-shadow(0 0 15px rgba(252, 238, 9, 0.6)); 
         }
 
-        .big-text { font-size: 3.5rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
+        .big-text { font-size: 4rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
         
-        #countdown-text { font-size: 8rem; font-weight: 900; color: var(--brand-color); text-shadow: 5px 5px 0px #000; animation: pop 1s infinite; }
-        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
-        
-        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 200; }
-        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
+        #confetti-canvas { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            pointer-events: none; z-index: 200; 
+        }
     </style>
 </head>
 <body>
@@ -112,11 +132,7 @@
             <h2>Ingresa para jugar</h2>
             <div class="form-group">
                 <label>Nombre:</label>
-                <input type="text" id="player-name" placeholder="Ej: Juan Pérez" autocomplete="name">
-            </div>
-            <div class="form-group">
-                <label>Número de Celular:</label>
-                <input type="tel" id="player-phone" placeholder="9 1234 5678" autocomplete="tel" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" id="player-name" placeholder="Ej: Juan Pérez">
             </div>
             <button id="btn-next">Siguiente</button>
         </div>
@@ -133,12 +149,12 @@
                 <div class="instruction-icon">⏱️</div>
                 <div>El tiempo más rápido se lleva el premio.</div>
             </div>
+            <div class="instruction-item">
+                <div class="instruction-icon">👆</div>
+                <div>Si no puedes agitar, tapea rápido la pantalla.</div>
+            </div>
             <button id="btn-start">¡LISTO, VAMOS!</button>
         </div>
-    </div>
-
-    <div id="screen-countdown" class="overlay hidden" style="background: rgba(0,0,0,0.9);">
-        <div id="countdown-text">3</div>
     </div>
 
     <div id="screen-result" class="overlay hidden">
@@ -146,19 +162,13 @@
             <h2>¡Carga Completa!</h2>
             <p style="color: white; font-size:1.2rem; margin:0;">Tu tiempo fue:</p>
             <p class="big-text" id="final-time">0.00s</p>
-            
-            <div style="background: rgba(252, 238, 9, 0.1); border: 1px solid var(--brand-color); border-radius: 10px; padding: 15px; margin: 15px 0;">
-                <p id="rank-text" style="color: var(--brand-color); font-size: 1.1rem; font-weight: bold; margin: 0; animation: pulse 0.8s infinite alternate;">Calculando tu posición...</p>
-            </div>
-
-            <button onclick="window.location.href='ranking.html'" class="btn-secondary">🏆 VER RANKING</button>
-            <button onclick="location.reload()">JUGAR DE NUEVO</button>
+            <button onclick="location.reload()">Jugar de nuevo</button>
         </div>
     </div>
 
     <div id="game-container" class="logo-wrapper">
-        <img src="logo.png" class="logo-img ghost" alt="Logo Fondo Gris">
-        <img src="logo.png" id="full-image" class="logo-img full-color" alt="Logo Relleno Color">
+        <img src="logo.png" class="logo-img ghost" alt="Logo Fondo">
+        <img src="logo.png" id="full-image" class="logo-img full-color" alt="Logo Color">
     </div>
 
     <canvas id="confetti-canvas"></canvas>
@@ -168,114 +178,55 @@
         (function() {
             const CONFIG = Object.freeze({
                 webhookUrl: "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec", 
-                targetBeats: 1000, 
+                targetBeats: 500, 
                 threshold: 15,
                 minTimePossible: 2.0 
             });
 
-            const AudioEngine = {
-                ctx: null,
-                init: function() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
-                playTone: function(freq, type, duration, vol=0.1) {
-                    if (!this.ctx) return;
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-                    osc.connect(gain); gain.connect(this.ctx.destination);
-                    osc.start(); osc.stop(this.ctx.currentTime + duration);
-                },
-                beep: function() { this.playTone(440, 'square', 0.2, 0.1); }, 
-                go: function() { this.playTone(880, 'square', 0.4, 0.2); },   
-                tick: function() { this.playTone(600, 'sine', 0.1, 0.02); },  
-                win: function() { 
-                    this.playTone(440, 'sine', 0.5); 
-                    setTimeout(() => this.playTone(554, 'sine', 0.5), 100); 
-                    setTimeout(() => this.playTone(659, 'sine', 1.0), 200); 
-                }
-            };
-
-            let state = { active: false, beats: 0, start: 0, name: "", phone: "", lastBeatTime: 0 };
+            let state = { active: false, beats: 0, start: 0, name: "", lastBeatTime: 0 };
             let animationPending = false;
 
             const ui = {
                 screenForm: document.getElementById("screen-form"),
-                screenInst: document.getElementById("screen-instructions"),
-                screenCount: document.getElementById("screen-countdown"),
+                screenInstructions: document.getElementById("screen-instructions"),
                 screenResult: document.getElementById("screen-result"),
                 gameContainer: document.getElementById("game-container"),
                 fullImage: document.getElementById("full-image"),
                 finalTimeText: document.getElementById("final-time"),
-                rankText: document.getElementById("rank-text"),
-                countText: document.getElementById("countdown-text"),
                 nameInput: document.getElementById("player-name"),
-                phoneInput: document.getElementById("player-phone"),
                 btnNext: document.getElementById("btn-next"),
                 btnStart: document.getElementById("btn-start")
             };
 
-            function syncOfflineData() {
-                let pending = JSON.parse(localStorage.getItem("jungle_pending") || "[]");
-                if (pending.length > 0) {
-                    pending.forEach(p => fetch(CONFIG.webhookUrl, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(p) }));
-                    localStorage.removeItem("jungle_pending");
-                }
-            }
-            syncOfflineData();
-
-            function switchScreen(hide, show) {
-                hide.classList.add("hidden");
-                setTimeout(() => show.classList.remove("hidden"), 400);
-            }
-
             ui.btnNext.onclick = () => {
                 const name = ui.nameInput.value.trim();
-                const phone = ui.phoneInput.value.trim();
-                if(!name || !phone) return alert("Por favor, completa todos los datos.");
-                state.name = name; state.phone = phone;
-                switchScreen(ui.screenForm, ui.screenInst);
+                if(!name) {
+                    alert("Por favor, ingresa tu nombre para continuar.");
+                    return;
+                }
+                state.name = name;
+                ui.screenForm.classList.add("hidden");
+                setTimeout(() => ui.screenInstructions.classList.remove("hidden"), 300);
             };
 
             ui.btnStart.onclick = async () => {
-                AudioEngine.init();
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    try { const resp = await DeviceMotionEvent.requestPermission(); } catch (e) { }
+                    try {
+                        const resp = await DeviceMotionEvent.requestPermission();
+                        if (resp !== 'granted') console.log("Sensor denegado.");
+                    } catch (e) { console.error(e); }
                 }
-                ui.screenInst.classList.add("hidden");
-                setTimeout(startCountdown, 400);
-            };
 
-            function startCountdown() {
-                ui.screenCount.classList.remove("hidden");
-                let count = 3;
-                ui.countText.innerText = count;
-                AudioEngine.beep();
+                ui.screenInstructions.classList.add("hidden");
+                ui.gameContainer.style.display = "block";
+                
+                state.active = true;
+                state.start = Date.now();
+                state.beats = 0;
 
-                const interval = setInterval(() => {
-                    count--;
-                    if (count > 0) {
-                        ui.countText.innerText = count;
-                        AudioEngine.beep();
-                    } else if (count === 0) {
-                        ui.countText.innerText = "¡AGITA!";
-                        ui.countText.style.fontSize = "5rem";
-                        AudioEngine.go();
-                        if(navigator.vibrate) navigator.vibrate(500); 
-                    } else {
-                        clearInterval(interval);
-                        ui.screenCount.classList.add("hidden");
-                        ui.gameContainer.style.display = "block";
-                        startGame();
-                    }
-                }, 1000);
-            }
-
-            function startGame() {
-                state.active = true; state.start = Date.now(); state.beats = 0;
                 window.addEventListener("devicemotion", handleMotion);
                 ui.gameContainer.addEventListener("click", handleTap);
-            }
+            };
 
             const handleMotion = (e) => {
                 if (!state.active) return;
@@ -288,17 +239,12 @@
                 if (!state.active) return;
                 const now = Date.now();
                 if(now - state.lastBeatTime < 50) return; 
-                state.lastBeatTime = now; addBeat(5); 
+                state.lastBeatTime = now;
+                addBeat(5); 
             };
 
             const addBeat = (amount) => {
                 state.beats += amount;
-                
-                if(state.beats % 20 === 0) {
-                    AudioEngine.tick();
-                    if(navigator.vibrate) navigator.vibrate(15);
-                }
-
                 const progress = Math.min((state.beats / CONFIG.targetBeats) * 100, 100);
                 const clip = 100 - progress;
 
@@ -310,54 +256,40 @@
                         animationPending = false;
                     });
                 }
+
                 if (state.beats >= CONFIG.targetBeats) finish();
             };
 
             const finish = () => {
                 if (!state.active) return;
                 state.active = false;
-                const totalTime = ((Date.now() - state.start) / 1000).toFixed(2);
+                
+                const endTime = Date.now();
+                const totalTime = ((endTime - state.start) / 1000).toFixed(2);
 
                 if (totalTime < CONFIG.minTimePossible) {
                     alert("¡Demasiado rápido! Parece un error o trampa.");
-                    location.reload(); return;
+                    location.reload();
+                    return;
                 }
-
-                AudioEngine.win(); 
-                if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); 
 
                 ui.finalTimeText.innerText = `${totalTime}s`;
                 ui.screenResult.classList.remove("hidden");
-                launchConfetti(); 
+                
+                launchConfetti();
                 sendData(totalTime);
             };
 
             const sendData = (time) => {
-                const payload = { name: state.name, phone: state.phone, time: parseFloat(time), v: btoa(state.name + time) };
-
+                const payload = { name: state.name, time: time, v: btoa(state.name + time) };
                 fetch(CONFIG.webhookUrl, {
-                    method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload)
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if(data.posicion) {
-                        ui.rankText.style.animation = "none";
-                        ui.rankText.innerHTML = `¡Quedaste en la posición<br><span style="font-size: 2.2rem; color: #fff;">#${data.posicion}</span><br>de ${data.total} jugadores!`;
-                    }
-                })
-                .catch(() => {
-                    let pending = JSON.parse(localStorage.getItem("jungle_pending") || "[]");
-                    pending.push(payload);
-                    localStorage.setItem("jungle_pending", JSON.stringify(pending));
-
-                    ui.rankText.style.animation = "none";
-                    ui.rankText.innerText = "¡Tiempo guardado localmente! Se sincronizará pronto.";
-                });
+                    method: "POST", mode: "no-cors", body: JSON.stringify(payload)
+                }).catch((error) => console.error("Error enviando datos:", error));
             };
 
             const launchConfetti = () => {
                 const myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true });
-                myConfetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, colors: ['#FCEE09', '#000000', '#ffffff'] });
+                myConfetti({ particleCount: 150, spread: 90, origin: { y: 0.5 }, colors: ['#FCEE09', '#000000', '#ffffff'] });
             };
         })();
     </script>
