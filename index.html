@@ -105,7 +105,7 @@
 
     <div id="screen-form" class="overlay">
         <div class="panel">
-            <h2>Ingresa para jugar</h2>
+            <h2>Ingresa tu nombre para jugar</h2>
             <div class="form-group">
                 <label>Nombre:</label>
                 <input type="text" id="player-name" placeholder="Ej: Juan Pérez" autocomplete="name">
@@ -119,7 +119,7 @@
             <h2>Cómo Jugar</h2>
             <div class="instruction-item">
                 <div class="instruction-icon">📱</div>
-                <div>Agita tu celular rápidamente para cargar la energía.</div>
+                <div>Agita tu celular rápidamente para revelar la imagen oculta.</div>
             </div>
             <div class="instruction-item">
                 <div class="instruction-icon">⏱️</div>
@@ -135,7 +135,7 @@
 
     <div id="screen-result" class="overlay hidden">
         <div class="panel">
-            <h2>¡Carga Completa!</h2>
+            <h2>¡Misión Completa!</h2>
             <p style="color: white; font-size:1.2rem; margin:0;">Tu tiempo fue:</p>
             <p class="big-text" id="final-time">0.00s</p>
 
@@ -160,7 +160,7 @@
         (function() {
             const CONFIG = Object.freeze({
                 webhookUrl: "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec", 
-                targetBeats: 250, 
+                targetBeats: 500, 
                 threshold: 15,
                 minTimePossible: 2.0 
             });
