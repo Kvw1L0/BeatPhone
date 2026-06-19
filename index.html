@@ -79,12 +79,6 @@
         .logo-wrapper { position: relative; width: var(--logo-size); height: var(--logo-size); display: none; z-index: 10; }
         .logo-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
-        .ghost { 
-            opacity: 1; 
-            filter: grayscale(100%) brightness(35%) contrast(150%); 
-            z-index: 1; 
-        }
-
         .full-color {
             z-index: 2; opacity: 1; 
             clip-path: inset(100% 0 0 0); -webkit-clip-path: inset(100% 0 0 0);
@@ -149,7 +143,6 @@
     </div>
 
     <div id="game-container" class="logo-wrapper">
-        <img src="logo.png" class="logo-img ghost" alt="Logo Fondo Gris">
         <img src="logo.png" id="full-image" class="logo-img full-color" alt="Logo Relleno Color">
     </div>
 
@@ -323,29 +316,25 @@
             };
 
             const sendData = (time) => {
-                // Se eliminó la propiedad phone del payload
                 const payload = { name: state.name, time: parseFloat(time), v: btoa(state.name + time) };
 
                 fetch(CONFIG.webhookUrl, {
                     method: "POST", 
-                    redirect: "follow", // Añadido para seguir redirecciones de Apps Script
+                    redirect: "follow",
                     headers: { "Content-Type": "text/plain;charset=utf-8" }, 
                     body: JSON.stringify(payload)
                 })
-                .then(r => r.text()) // Convertimos a texto primero por si Apps Script falla y devuelve HTML
+                .then(r => r.text()) 
                 .then(text => {
                     ui.rankText.style.animation = "none";
                     try {
                         const data = JSON.parse(text);
-                        // Comprueba si realmente devolvió la posición
                         if(data && data.posicion) {
                             ui.rankText.innerHTML = `¡Quedaste en la posición<br><span style="font-size: 2.2rem; color: #fff;">#${data.posicion}</span><br>de ${data.total} jugadores!`;
                         } else {
-                            // Fallback si el script guardó los datos pero no devolvió posición
                             ui.rankText.innerHTML = `¡Tiempo registrado exitosamente!`;
                         }
                     } catch (e) {
-                        // Si falla el parseo, asumimos que guardó pero el servidor no respondió en JSON
                         ui.rankText.innerHTML = `¡Tiempo registrado!`;
                     }
                 })
