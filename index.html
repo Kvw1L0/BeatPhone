@@ -95,7 +95,7 @@
         
         .full-img {
             opacity: 0;
-            transition: opacity 1s ease-in-out; /* Este es el fade in que veías al ganar */
+            transition: opacity 1.5s ease-in-out; /* Fade-in final de victoria */
             z-index: 3;
         }
 
@@ -112,7 +112,6 @@
         @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
 
         #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 200; }
-        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -172,8 +171,7 @@
                 targetBeats: 600, 
                 threshold: 15,
                 minTimePossible: 2.0,
-                beatsPerStage: 20, // Cada cuántos movimientos ocurre una revelación
-                lightsPerStage: 3  // Cuántas luces aparecen de golpe en esa etapa
+                maxLights: 150 // Número total de luces que aparecerán 1 a 1 durante el juego
             });
 
             const AudioEngine = {
@@ -191,7 +189,7 @@
                 },
                 beep: function() { this.playTone(440, 'square', 0.2, 0.1); }, 
                 go: function() { this.playTone(880, 'square', 0.4, 0.2); },   
-                tick: function() { this.playTone(600, 'sine', 0.1, 0.02); },  
+                tick: function() { this.playTone(600, 'sine', 0.05, 0.02); },  
                 win: function() { 
                     this.playTone(440, 'sine', 0.5); 
                     setTimeout(() => this.playTone(554, 'sine', 0.5), 100); 
@@ -200,7 +198,10 @@
             };
 
             let state = { active: false, beats: 0, start: 0, name: "", lastBeatTime: 0 };
-            let currentStage = 0; // Control estricto de las etapas cruzadas
+            
+            // Array para almacenar cada destello individual
+            let activeLights = []; 
+            let animationFrameId = null;
 
             const ui = {
                 screenForm: document.getElementById("screen-form"),
@@ -212,18 +213,19 @@
                 revealCanvas: document.getElementById("reveal-canvas"),
                 finalTimeText: document.getElementById("final-time"),
                 rankText: document.getElementById("rank-text"),
-                countText: document.getElementById("countdown-text"),
                 nameInput: document.getElementById("player-name"),
                 btnNext: document.getElementById("btn-next"),
                 btnStart: document.getElementById("btn-start")
             };
 
             const ctx = ui.revealCanvas.getContext("2d");
-            const litImageObj = new Image();
-            litImageObj.src = 'image_a215a1.png';
 
-            function drawImageContain(ctx, img, x, y, w, h) {
-                let imgRatio = img.width / img.height;
+            // Función ultra precisa para dibujar la imagen en el canvas (emulando object-fit: contain)
+            function drawImageContain(ctx, img, w, h) {
+                // Usamos naturalWidth para evitar que tome anchos CSS equivocados
+                let imgRatio = img.naturalWidth / img.naturalHeight; 
+                if (isNaN(imgRatio) || imgRatio === 0) return; // Protección si no ha cargado
+
                 let canvasRatio = w / h;
                 let drawW, drawH, drawX, drawY;
 
@@ -261,57 +263,79 @@
             function startCountdown() {
                 ui.screenCount.classList.remove("hidden");
                 let count = 3;
-                ui.countText.innerText = count;
+                document.getElementById("countdown-text").innerText = count;
                 AudioEngine.beep();
 
                 const interval = setInterval(() => {
                     count--;
                     if (count > 0) {
-                        ui.countText.innerText = count;
+                        document.getElementById("countdown-text").innerText = count;
                         AudioEngine.beep();
                     } else if (count === 0) {
-                        ui.countText.innerText = "¡AGITA!";
-                        ui.countText.style.fontSize = "5rem";
+                        document.getElementById("countdown-text").innerText = "¡AGITA!";
+                        document.getElementById("countdown-text").style.fontSize = "5rem";
                         AudioEngine.go();
                         if(navigator.vibrate) navigator.vibrate(500); 
                     } else {
                         clearInterval(interval);
                         ui.screenCount.classList.add("hidden");
                         ui.gameContainer.style.display = "block";
-                        startGame();
+                        
+                        // Pequeño retardo para asegurar que el navegador renderice el display:block
+                        setTimeout(startGame, 50);
                     }
                 }, 1000);
             }
 
-            // FUNCIÓN SÍNCRONA PARA DIBUJAR UN LOTE DE LUCES
-            const drawLightsGroup = (count) => {
-                for (let i = 0; i < count; i++) {
-                    const x = Math.random() * ui.revealCanvas.width;
-                    const y = Math.random() * ui.revealCanvas.height;
-                    const radius = Math.random() * 25 + 15; // Círculos definidos
+            // BUCLE DE ANIMACIÓN PRINCIPAL (Responsable del Fade-In individual)
+            function renderLoop() {
+                if (!state.active && activeLights.length === 0) return;
 
-                    ctx.save();
+                // Limpiar el fotograma
+                ctx.clearRect(0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
+
+                // 1. Dibujar las "máscaras" de luz con sus respectivas opacidades
+                ctx.globalCompositeOperation = 'source-over';
+                
+                activeLights.forEach(light => {
+                    if (light.alpha < 1) {
+                        light.alpha += 0.04; // Velocidad del fade in de CADA luz (~25 frames para ser visible)
+                    }
+                    
+                    // Crear un gradiente radial (borde difuminado y suave, orgánico)
+                    const grad = ctx.createRadialGradient(light.x, light.y, 0, light.x, light.y, light.radius);
+                    grad.addColorStop(0, `rgba(255, 255, 255, ${light.alpha})`); // Centro brillante
+                    grad.addColorStop(1, `rgba(255, 255, 255, 0)`); // Borde invisible
+                    
+                    ctx.fillStyle = grad;
                     ctx.beginPath();
-                    ctx.arc(x, y, radius, 0, Math.PI * 2);
-                    ctx.clip(); 
-                    drawImageContain(ctx, litImageObj, 0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
-                    ctx.restore();
-                }
-            };
+                    ctx.arc(light.x, light.y, light.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // 2. Colorear esas máscaras con la imagen iluminada real
+                ctx.globalCompositeOperation = 'source-in';
+                drawImageContain(ctx, ui.fullImage, ui.revealCanvas.width, ui.revealCanvas.height);
+
+                animationFrameId = requestAnimationFrame(renderLoop);
+            }
 
             function startGame() {
                 state.active = true; 
                 state.start = Date.now(); 
                 state.beats = 0;
-                currentStage = 0; 
+                activeLights = [];
                 
-                ui.revealCanvas.width = ui.gameContainer.offsetWidth;
-                ui.revealCanvas.height = ui.gameContainer.offsetHeight;
+                // Usar window.innerWidth garantiza el tamaño exacto aunque display:none haya fallado antes
+                ui.revealCanvas.width = window.innerWidth;
+                ui.revealCanvas.height = window.innerHeight;
                 ui.fullImage.style.opacity = 0;
-                ctx.clearRect(0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
-
+                
                 window.addEventListener("devicemotion", handleMotion);
                 ui.gameContainer.addEventListener("click", handleTap); 
+                
+                // Iniciar el render engine
+                animationFrameId = requestAnimationFrame(renderLoop);
             }
 
             const handleMotion = (e) => {
@@ -325,28 +349,33 @@
                 if (!state.active) return;
                 const now = Date.now();
                 if(now - state.lastBeatTime < 50) return; 
-                state.lastBeatTime = now; addBeat(8); 
+                state.lastBeatTime = now; 
+                
+                // Cada "toque" sumará el progreso equivalente a 2 luces directamente
+                addBeat( (CONFIG.targetBeats / CONFIG.maxLights) * 2 ); 
             };
 
             const addBeat = (amount) => {
                 state.beats += amount;
 
-                // LÓGICA ESTRICTA: ¿En qué etapa (múltiplo de 20) estamos ahora?
-                const targetStage = Math.floor(state.beats / CONFIG.beatsPerStage);
+                // Calculamos cuántas luces deben existir en pantalla según el progreso total
+                const progress = Math.min(state.beats / CONFIG.targetBeats, 1);
+                const targetLightCount = Math.floor(progress * CONFIG.maxLights);
 
-                // Si cruzamos una o más etapas...
-                if (targetStage > currentStage) {
-                    const stagesCrossed = targetStage - currentStage;
-                    
-                    // 1. DIBUJAMOS INMEDIATAMENTE (3 luces x etapas cruzadas)
-                    drawLightsGroup(CONFIG.lightsPerStage * stagesCrossed);
-                    
-                    // 2. Feedback Sensorial inmediato
-                    AudioEngine.tick();
-                    if(navigator.vibrate) navigator.vibrate(15);
-                    
-                    // 3. Actualizamos la etapa actual
-                    currentStage = targetStage;
+                // Si necesitamos más luces, las agregamos al array. ¡Nacen con opacidad 0!
+                while (activeLights.length < targetLightCount) {
+                    activeLights.push({
+                        x: Math.random() * ui.revealCanvas.width,
+                        y: Math.random() * ui.revealCanvas.height,
+                        radius: Math.random() * 35 + 25, // Tamaño aleatorio orgánico
+                        alpha: 0 // Inician invisibles para hacer el fade-in progresivo
+                    });
+
+                    // Pequeño feedback táctil/sonoro ocasional para no saturar
+                    if (activeLights.length % 2 === 0) {
+                        AudioEngine.tick();
+                        if(navigator.vibrate) navigator.vibrate(10);
+                    }
                 }
 
                 if (state.beats >= CONFIG.targetBeats) finish();
@@ -357,24 +386,30 @@
                 state.active = false; 
                 
                 const totalTime = ((Date.now() - state.start) / 1000).toFixed(2);
-
                 if (totalTime < CONFIG.minTimePossible) {
                     alert("¡Demasiado rápido! Parece trampa.");
                     location.reload(); return;
                 }
 
-                AudioEngine.win(); 
-                if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); 
-
-                // Revelar la imagen full HD (ESTE ES EL FADE IN FINAL)
-                ui.fullImage.style.opacity = 1;
-
+                // Damos 500ms para que las últimas luces que aparecieron terminen su animación de Fade-In...
                 setTimeout(() => {
-                    ui.finalTimeText.innerText = `${totalTime}s`;
-                    ui.screenResult.classList.remove("hidden");
-                    launchConfetti(); 
-                    sendData(totalTime);
-                }, 1200);
+                    // ...Y luego encendemos la imagen completa de victoria (fade in css)
+                    ui.fullImage.style.opacity = 1;
+                    AudioEngine.win(); 
+                    if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); 
+
+                    // Esperamos que acabe la transición de victoria antes de tapar con los resultados
+                    setTimeout(() => {
+                        ui.finalTimeText.innerText = `${totalTime}s`;
+                        ui.screenResult.classList.remove("hidden");
+                        
+                        const myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true });
+                        myConfetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, colors: ['#FF0000', '#000000', '#ffffff'] });
+                        
+                        sendData(totalTime);
+                    }, 1500);
+                    
+                }, 500);
             };
 
             const sendData = (time) => {
@@ -387,11 +422,6 @@
                         if(data && data.posicion) ui.rankText.innerHTML = `Posición <br><span style="font-size: 2.2rem; color: #fff;">#${data.posicion}</span><br>de ${data.total}`;
                     } catch (e) { ui.rankText.innerHTML = `¡Tiempo registrado!`; }
                 }).catch(() => ui.rankText.innerText = "¡Guardado localmente!");
-            };
-
-            const launchConfetti = () => {
-                const myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true });
-                myConfetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, colors: ['#FF0000', '#000000', '#ffffff'] });
             };
         })();
     </script>
