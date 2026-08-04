@@ -10,7 +10,7 @@
         :root {
             --brand-color: #FF0000; 
             --dark-bg: rgba(10, 10, 10, 0.95);
-            --bg-image: url('fondo.png'); /* Puedes mantener un fondo general si quieres */
+            --bg-image: url('fondo.png'); 
         }
 
         * { box-sizing: border-box; }
@@ -58,7 +58,7 @@
 
         button {
             width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900;
-            background: var(--brand-color); color: #fff; /* Texto blanco en el botón rojo */
+            background: var(--brand-color); color: #fff; 
             border: none; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
             cursor: pointer; text-transform: uppercase; margin-top: 15px;
             box-shadow: 0 5px 0px #880000; transition: transform 0.1s, box-shadow 0.1s;
@@ -75,7 +75,7 @@
         .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 1rem; }
         .instruction-icon { font-size: 2rem; margin-right: 15px; background: #222; border-radius: 50%; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(255, 0, 0, 0.3); }
 
-        /* --- NUEVOS ESTILOS PARA EL CONTENEDOR DE IMÁGENES --- */
+        /* --- ESTILOS PARA EL CONTENEDOR DE IMÁGENES --- */
         .game-wrapper {
             position: relative; 
             width: 100vw; 
@@ -89,11 +89,10 @@
             position: absolute; 
             top: 0; left: 0; 
             width: 100%; height: 100%; 
-            object-fit: contain; /* Mantiene la proporción de la arena */
+            object-fit: contain; 
             pointer-events: none;
         }
         
-        /* La imagen full está oculta al principio y se revela con un fade al ganar */
         .full-img {
             opacity: 0;
             transition: opacity 1s ease-in-out;
@@ -163,15 +162,9 @@
         </div>
     </div>
 
-    <!-- CONTENEDOR DEL JUEGO MODIFICADO -->
     <div id="game-container" class="game-wrapper">
-        <!-- Imagen Oscura de Fondo -->
         <img src="imagen1.png" class="base-img" alt="Arena Oscura">
-        
-        <!-- Canvas donde se dibujan los puntos de luz orgánicamente -->
         <canvas id="reveal-canvas"></canvas>
-        
-        <!-- Imagen Iluminada Final (Se muestra con fade-in al terminar) -->
         <img src="imagen2.png" id="full-image" class="full-img" alt="Arena Iluminada">
     </div>
 
@@ -184,8 +177,7 @@
                 webhookUrl: "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec", 
                 targetBeats: 600, 
                 threshold: 15,
-                minTimePossible: 2.0,
-                totalLightsToReveal: 800 // Cantidad de "puntos/luces" que se generarán para pintar la pantalla
+                minTimePossible: 2.0
             });
 
             const AudioEngine = {
@@ -213,7 +205,7 @@
 
             let state = { active: false, beats: 0, start: 0, name: "", lastBeatTime: 0 };
             let animationPending = false;
-            let currentLitCount = 0; // Puntos encendidos actualmente
+            let currentLitCount = 0; 
 
             const ui = {
                 screenForm: document.getElementById("screen-form"),
@@ -233,11 +225,9 @@
 
             const ctx = ui.revealCanvas.getContext("2d");
 
-            // Precargamos la imagen iluminada en memoria para el Canvas
             const litImageObj = new Image();
             litImageObj.src = 'image_a215a1.png';
 
-            // Función Helper: Dibuja la imagen en el canvas emulando "object-fit: contain" de CSS
             function drawImageContain(ctx, img, x, y, w, h) {
                 let imgRatio = img.width / img.height;
                 let canvasRatio = w / h;
@@ -316,15 +306,12 @@
                 state.active = true; state.start = Date.now(); state.beats = 0;
                 currentLitCount = 0;
                 
-                // Ajustar tamaño del canvas al dispositivo
                 ui.revealCanvas.width = ui.gameContainer.offsetWidth;
                 ui.revealCanvas.height = ui.gameContainer.offsetHeight;
-                
-                // Asegurar que la imagen final está oculta al reiniciar
                 ui.fullImage.style.opacity = 0;
 
                 window.addEventListener("devicemotion", handleMotion);
-                ui.gameContainer.addEventListener("click", handleTap); // Alternativa táctil
+                ui.gameContainer.addEventListener("click", handleTap); 
             }
 
             const handleMotion = (e) => {
@@ -338,44 +325,43 @@
                 if (!state.active) return;
                 const now = Date.now();
                 if(now - state.lastBeatTime < 50) return; 
-                state.lastBeatTime = now; addBeat(8); // Clic suma más para compensar
+                state.lastBeatTime = now; addBeat(8); 
             };
 
             const addBeat = (amount) => {
                 state.beats += amount;
 
-                if(state.beats % 20 === 0) {
+                // FÓRMULA: Exactamente 1 luz por cada 20 beats
+                const targetLitCount = Math.floor(state.beats / 20);
+
+                if (targetLitCount > currentLitCount) {
+                    
+                    // Sonido y vibración exactamente cuando aparece la luz
                     AudioEngine.tick();
                     if(navigator.vibrate) navigator.vibrate(15);
-                }
 
-                // Cálculo para animación orgánica
-                const progress = Math.min((state.beats / CONFIG.targetBeats), 1);
-                const targetLitCount = Math.floor(progress * CONFIG.totalLightsToReveal);
+                    if (!animationPending) {
+                        animationPending = true;
+                        requestAnimationFrame(() => {
+                            while (currentLitCount < targetLitCount) {
+                                const x = Math.random() * ui.revealCanvas.width;
+                                const y = Math.random() * ui.revealCanvas.height;
+                                
+                                // Radio más grande (entre 20px y 60px) 
+                                const radius = Math.random() * 40 + 20; 
 
-                if (!animationPending && targetLitCount > currentLitCount) {
-                    animationPending = true;
-                    requestAnimationFrame(() => {
-                        // Dibujamos todas las luces aleatorias necesarias para alcanzar el progreso actual
-                        while (currentLitCount < targetLitCount) {
-                            // Coordenadas aleatorias en toda la pantalla
-                            const x = Math.random() * ui.revealCanvas.width;
-                            const y = Math.random() * ui.revealCanvas.height;
-                            // Tamaño aleatorio para variar la textura revelada
-                            const radius = Math.random() * 25 + 10; 
+                                ctx.save();
+                                ctx.beginPath();
+                                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                                ctx.clip(); 
+                                drawImageContain(ctx, litImageObj, 0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
+                                ctx.restore();
 
-                            ctx.save();
-                            ctx.beginPath();
-                            ctx.arc(x, y, radius, 0, Math.PI * 2);
-                            ctx.clip(); // Usar el círculo como máscara
-                            // Dibujar la imagen iluminada dentro del círculo enmascarado
-                            drawImageContain(ctx, litImageObj, 0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
-                            ctx.restore();
-
-                            currentLitCount++;
-                        }
-                        animationPending = false;
-                    });
+                                currentLitCount++;
+                            }
+                            animationPending = false;
+                        });
+                    }
                 }
 
                 if (state.beats >= CONFIG.targetBeats) finish();
@@ -394,10 +380,8 @@
                 AudioEngine.win(); 
                 if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); 
 
-                // Revelar la imagen final con alta resolución (fade in CSS)
                 ui.fullImage.style.opacity = 1;
 
-                // Pausa antes de mostrar el resultado
                 setTimeout(() => {
                     ui.finalTimeText.innerText = `${totalTime}s`;
                     ui.screenResult.classList.remove("hidden");
