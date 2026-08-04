@@ -75,7 +75,7 @@
         .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 1rem; }
         .instruction-icon { font-size: 2rem; margin-right: 15px; background: #222; border-radius: 50%; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(255, 0, 0, 0.3); }
 
-        /* --- ESTILOS PARA EL CONTENEDOR DE IMÁGENES --- */
+        /* --- ESTILOS DEL JUEGO --- */
         .game-wrapper {
             position: relative; 
             width: 100vw; 
@@ -95,7 +95,7 @@
         
         .full-img {
             opacity: 0;
-            transition: opacity 1s ease-in-out;
+            transition: opacity 1s ease-in-out; /* Este es el fade in que veías al ganar */
             z-index: 3;
         }
 
@@ -119,9 +119,8 @@
 
     <div id="screen-form" class="overlay">
         <div class="panel">
-            <h2>Ingresa tu nombre para jugar</h2>
+            <h2>Ingresa tu nombre</h2>
             <div class="form-group">
-                <label>Nombre:</label>
                 <input type="text" id="player-name" placeholder="Ej: Juan Pérez" autocomplete="name">
             </div>
             <button id="btn-next">Siguiente</button>
@@ -133,11 +132,7 @@
             <h2>Cómo Jugar</h2>
             <div class="instruction-item">
                 <div class="instruction-icon">📱</div>
-                <div>Agita tu celular rápidamente para encender las luces de la Arena.</div>
-            </div>
-            <div class="instruction-item">
-                <div class="instruction-icon">⏱️</div>
-                <div>El tiempo más rápido se lleva el premio.</div>
+                <div>Agita tu celular rápidamente para encender las luces.</div>
             </div>
             <button id="btn-start">¡LISTO, VAMOS!</button>
         </div>
@@ -154,18 +149,17 @@
             <p class="big-text" id="final-time">0.00s</p>
 
             <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid var(--brand-color); border-radius: 10px; padding: 15px; margin: 15px 0;">
-                <p id="rank-text" style="color: var(--brand-color); font-size: 1.1rem; font-weight: bold; margin: 0; animation: pulse 0.8s infinite alternate;">Calculando tu posición...</p>
+                <p id="rank-text" style="color: var(--brand-color); font-size: 1.1rem; font-weight: bold; margin: 0;">Calculando tu posición...</p>
             </div>
 
-            <button onclick="window.location.href='ranking.html'" class="btn-secondary">🏆 VER RANKING</button>
             <button onclick="location.reload()">JUGAR DE NUEVO</button>
         </div>
     </div>
 
     <div id="game-container" class="game-wrapper">
-        <img src="imagen1.png" class="base-img" alt="Arena Oscura">
+        <img src="imagen1.png" class="base-img" alt="Oscura">
         <canvas id="reveal-canvas"></canvas>
-        <img src="imagen2.png" id="full-image" class="full-img" alt="Arena Iluminada">
+        <img src="imagen2.png" id="full-image" class="full-img" alt="Iluminada">
     </div>
 
     <canvas id="confetti-canvas"></canvas>
@@ -177,7 +171,9 @@
                 webhookUrl: "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec", 
                 targetBeats: 600, 
                 threshold: 15,
-                minTimePossible: 2.0
+                minTimePossible: 2.0,
+                beatsPerStage: 20, // Cada cuántos movimientos ocurre una revelación
+                lightsPerStage: 3  // Cuántas luces aparecen de golpe en esa etapa
             });
 
             const AudioEngine = {
@@ -203,11 +199,8 @@
                 }
             };
 
-            // NUEVAS VARIABLES PARA EL SISTEMA ESTRICTO DE 1 EN 1
             let state = { active: false, beats: 0, start: 0, name: "", lastBeatTime: 0 };
-            let currentLitCount = 0; 
-            let lightsToDraw = 0; // Cola de luces pendientes por dibujar
-            let lastLightTime = 0; // Control de tiempo para forzar la animación secuencial
+            let currentStage = 0; // Control estricto de las etapas cruzadas
 
             const ui = {
                 screenForm: document.getElementById("screen-form"),
@@ -248,31 +241,18 @@
                 ctx.drawImage(img, drawX, drawY, drawW, drawH);
             }
 
-            function syncOfflineData() {
-                let pending = JSON.parse(localStorage.getItem("jungle_pending") || "[]");
-                if (pending.length > 0) {
-                    pending.forEach(p => fetch(CONFIG.webhookUrl, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(p) }));
-                    localStorage.removeItem("jungle_pending");
-                }
-            }
-            syncOfflineData();
-
-            function switchScreen(hide, show) {
-                hide.classList.add("hidden");
-                setTimeout(() => show.classList.remove("hidden"), 400);
-            }
-
             ui.btnNext.onclick = () => {
                 const name = ui.nameInput.value.trim();
-                if(!name) return alert("Por favor, ingresa tu nombre para jugar.");
+                if(!name) return alert("Por favor, ingresa tu nombre.");
                 state.name = name;
-                switchScreen(ui.screenForm, ui.screenInst);
+                ui.screenForm.classList.add("hidden");
+                setTimeout(() => ui.screenInst.classList.remove("hidden"), 400);
             };
 
             ui.btnStart.onclick = async () => {
                 AudioEngine.init();
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    try { const resp = await DeviceMotionEvent.requestPermission(); } catch (e) { }
+                    try { await DeviceMotionEvent.requestPermission(); } catch (e) { }
                 }
                 ui.screenInst.classList.add("hidden");
                 setTimeout(startCountdown, 400);
@@ -303,62 +283,35 @@
                 }, 1000);
             }
 
-            // FUNCIÓN PARA DIBUJAR ESTRICTAMENTE UNA (1) LUZ
-            const drawOneLight = () => {
-                const x = Math.random() * ui.revealCanvas.width;
-                const y = Math.random() * ui.revealCanvas.height;
-                const radius = Math.random() * 40 + 20; 
+            // FUNCIÓN SÍNCRONA PARA DIBUJAR UN LOTE DE LUCES
+            const drawLightsGroup = (count) => {
+                for (let i = 0; i < count; i++) {
+                    const x = Math.random() * ui.revealCanvas.width;
+                    const y = Math.random() * ui.revealCanvas.height;
+                    const radius = Math.random() * 25 + 15; // Círculos definidos
 
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(x, y, radius, 0, Math.PI * 2);
-                ctx.clip(); 
-                drawImageContain(ctx, litImageObj, 0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
-                ctx.restore();
-            };
-
-            // BUCLE DE RENDERIZADO AISLADO
-            // Esto asegura que, pase lo que pase, las luces se pinten 1 por 1.
-            const renderLoop = (timestamp) => {
-                if (!state.active) return;
-
-                // Solo pinta UNA luz si hay en cola Y han pasado al menos 40ms desde la anterior
-                if (lightsToDraw > 0 && (timestamp - lastLightTime > 40)) {
-                    drawOneLight();
-                    lightsToDraw--;
-                    lastLightTime = timestamp;
-
-                    // Sonido y vibración EXACTOS con la luz que acaba de aparecer
-                    AudioEngine.tick();
-                    if(navigator.vibrate) navigator.vibrate(15);
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, Math.PI * 2);
+                    ctx.clip(); 
+                    drawImageContain(ctx, litImageObj, 0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
+                    ctx.restore();
                 }
-
-                // Sigue escuchando el próximo fotograma
-                requestAnimationFrame(renderLoop);
             };
 
             function startGame() {
                 state.active = true; 
                 state.start = Date.now(); 
                 state.beats = 0;
-                
-                // Reiniciar los contadores de las luces
-                currentLitCount = 0;
-                lightsToDraw = 0; 
-                lastLightTime = 0;
+                currentStage = 0; 
                 
                 ui.revealCanvas.width = ui.gameContainer.offsetWidth;
                 ui.revealCanvas.height = ui.gameContainer.offsetHeight;
                 ui.fullImage.style.opacity = 0;
-                
-                // Limpiar el canvas por si se está reiniciando el juego
                 ctx.clearRect(0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
 
                 window.addEventListener("devicemotion", handleMotion);
                 ui.gameContainer.addEventListener("click", handleTap); 
-                
-                // Iniciar el motor de dibujo aislado
-                requestAnimationFrame(renderLoop);
             }
 
             const handleMotion = (e) => {
@@ -378,14 +331,22 @@
             const addBeat = (amount) => {
                 state.beats += amount;
 
-                // Lógica Matemática: Calcula el total de luces que DEBERÍAN estar encendidas
-                const targetLitCount = Math.floor(state.beats / 20);
+                // LÓGICA ESTRICTA: ¿En qué etapa (múltiplo de 20) estamos ahora?
+                const targetStage = Math.floor(state.beats / CONFIG.beatsPerStage);
 
-                // Si debe haber más luces, las agregamos a la cola de dibujo en lugar de dibujarlas de inmediato
-                if (targetLitCount > currentLitCount) {
-                    const newLights = targetLitCount - currentLitCount;
-                    lightsToDraw += newLights; // Añadir a la fila
-                    currentLitCount = targetLitCount;
+                // Si cruzamos una o más etapas...
+                if (targetStage > currentStage) {
+                    const stagesCrossed = targetStage - currentStage;
+                    
+                    // 1. DIBUJAMOS INMEDIATAMENTE (3 luces x etapas cruzadas)
+                    drawLightsGroup(CONFIG.lightsPerStage * stagesCrossed);
+                    
+                    // 2. Feedback Sensorial inmediato
+                    AudioEngine.tick();
+                    if(navigator.vibrate) navigator.vibrate(15);
+                    
+                    // 3. Actualizamos la etapa actual
+                    currentStage = targetStage;
                 }
 
                 if (state.beats >= CONFIG.targetBeats) finish();
@@ -393,19 +354,19 @@
 
             const finish = () => {
                 if (!state.active) return;
-                state.active = false; // Esto detiene automáticamente el renderLoop
+                state.active = false; 
                 
                 const totalTime = ((Date.now() - state.start) / 1000).toFixed(2);
 
                 if (totalTime < CONFIG.minTimePossible) {
-                    alert("¡Demasiado rápido! Parece un error o trampa.");
+                    alert("¡Demasiado rápido! Parece trampa.");
                     location.reload(); return;
                 }
 
                 AudioEngine.win(); 
                 if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); 
 
-                // Revelar la imagen full HD
+                // Revelar la imagen full HD (ESTE ES EL FADE IN FINAL)
                 ui.fullImage.style.opacity = 1;
 
                 setTimeout(() => {
@@ -418,35 +379,14 @@
 
             const sendData = (time) => {
                 const payload = { name: state.name, time: parseFloat(time), v: btoa(state.name + time) };
-
-                fetch(CONFIG.webhookUrl, {
-                    method: "POST", 
-                    redirect: "follow",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-                    body: JSON.stringify(payload)
-                })
-                .then(r => r.text()) 
+                fetch(CONFIG.webhookUrl, { method: "POST", body: JSON.stringify(payload) })
+                .then(r => r.text())
                 .then(text => {
-                    ui.rankText.style.animation = "none";
                     try {
                         const data = JSON.parse(text);
-                        if(data && data.posicion) {
-                            ui.rankText.innerHTML = `¡Quedaste en la posición<br><span style="font-size: 2.2rem; color: #fff;">#${data.posicion}</span><br>de ${data.total} jugadores!`;
-                        } else {
-                            ui.rankText.innerHTML = `¡Tiempo registrado exitosamente!`;
-                        }
-                    } catch (e) {
-                        ui.rankText.innerHTML = `¡Tiempo registrado!`;
-                    }
-                })
-                .catch(() => {
-                    let pending = JSON.parse(localStorage.getItem("jungle_pending") || "[]");
-                    pending.push(payload);
-                    localStorage.setItem("jungle_pending", JSON.stringify(pending));
-
-                    ui.rankText.style.animation = "none";
-                    ui.rankText.innerText = "¡Tiempo guardado localmente! Se sincronizará pronto.";
-                });
+                        if(data && data.posicion) ui.rankText.innerHTML = `Posición <br><span style="font-size: 2.2rem; color: #fff;">#${data.posicion}</span><br>de ${data.total}`;
+                    } catch (e) { ui.rankText.innerHTML = `¡Tiempo registrado!`; }
+                }).catch(() => ui.rankText.innerText = "¡Guardado localmente!");
             };
 
             const launchConfetti = () => {
