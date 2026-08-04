@@ -203,9 +203,11 @@
                 }
             };
 
+            // NUEVAS VARIABLES PARA EL SISTEMA ESTRICTO DE 1 EN 1
             let state = { active: false, beats: 0, start: 0, name: "", lastBeatTime: 0 };
-            let animationPending = false;
             let currentLitCount = 0; 
+            let lightsToDraw = 0; // Cola de luces pendientes por dibujar
+            let lastLightTime = 0; // Control de tiempo para forzar la animación secuencial
 
             const ui = {
                 screenForm: document.getElementById("screen-form"),
@@ -224,7 +226,6 @@
             };
 
             const ctx = ui.revealCanvas.getContext("2d");
-
             const litImageObj = new Image();
             litImageObj.src = 'image_a215a1.png';
 
@@ -302,16 +303,62 @@
                 }, 1000);
             }
 
+            // FUNCIÓN PARA DIBUJAR ESTRICTAMENTE UNA (1) LUZ
+            const drawOneLight = () => {
+                const x = Math.random() * ui.revealCanvas.width;
+                const y = Math.random() * ui.revealCanvas.height;
+                const radius = Math.random() * 40 + 20; 
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.clip(); 
+                drawImageContain(ctx, litImageObj, 0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
+                ctx.restore();
+            };
+
+            // BUCLE DE RENDERIZADO AISLADO
+            // Esto asegura que, pase lo que pase, las luces se pinten 1 por 1.
+            const renderLoop = (timestamp) => {
+                if (!state.active) return;
+
+                // Solo pinta UNA luz si hay en cola Y han pasado al menos 40ms desde la anterior
+                if (lightsToDraw > 0 && (timestamp - lastLightTime > 40)) {
+                    drawOneLight();
+                    lightsToDraw--;
+                    lastLightTime = timestamp;
+
+                    // Sonido y vibración EXACTOS con la luz que acaba de aparecer
+                    AudioEngine.tick();
+                    if(navigator.vibrate) navigator.vibrate(15);
+                }
+
+                // Sigue escuchando el próximo fotograma
+                requestAnimationFrame(renderLoop);
+            };
+
             function startGame() {
-                state.active = true; state.start = Date.now(); state.beats = 0;
+                state.active = true; 
+                state.start = Date.now(); 
+                state.beats = 0;
+                
+                // Reiniciar los contadores de las luces
                 currentLitCount = 0;
+                lightsToDraw = 0; 
+                lastLightTime = 0;
                 
                 ui.revealCanvas.width = ui.gameContainer.offsetWidth;
                 ui.revealCanvas.height = ui.gameContainer.offsetHeight;
                 ui.fullImage.style.opacity = 0;
+                
+                // Limpiar el canvas por si se está reiniciando el juego
+                ctx.clearRect(0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
 
                 window.addEventListener("devicemotion", handleMotion);
                 ui.gameContainer.addEventListener("click", handleTap); 
+                
+                // Iniciar el motor de dibujo aislado
+                requestAnimationFrame(renderLoop);
             }
 
             const handleMotion = (e) => {
@@ -331,37 +378,14 @@
             const addBeat = (amount) => {
                 state.beats += amount;
 
-                // FÓRMULA: Exactamente 1 luz por cada 20 beats
+                // Lógica Matemática: Calcula el total de luces que DEBERÍAN estar encendidas
                 const targetLitCount = Math.floor(state.beats / 20);
 
+                // Si debe haber más luces, las agregamos a la cola de dibujo en lugar de dibujarlas de inmediato
                 if (targetLitCount > currentLitCount) {
-                    
-                    // Sonido y vibración exactamente cuando aparece la luz
-                    AudioEngine.tick();
-                    if(navigator.vibrate) navigator.vibrate(15);
-
-                    if (!animationPending) {
-                        animationPending = true;
-                        requestAnimationFrame(() => {
-                            while (currentLitCount < targetLitCount) {
-                                const x = Math.random() * ui.revealCanvas.width;
-                                const y = Math.random() * ui.revealCanvas.height;
-                                
-                                // Radio más grande (entre 20px y 60px) 
-                                const radius = Math.random() * 40 + 20; 
-
-                                ctx.save();
-                                ctx.beginPath();
-                                ctx.arc(x, y, radius, 0, Math.PI * 2);
-                                ctx.clip(); 
-                                drawImageContain(ctx, litImageObj, 0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
-                                ctx.restore();
-
-                                currentLitCount++;
-                            }
-                            animationPending = false;
-                        });
-                    }
+                    const newLights = targetLitCount - currentLitCount;
+                    lightsToDraw += newLights; // Añadir a la fila
+                    currentLitCount = targetLitCount;
                 }
 
                 if (state.beats >= CONFIG.targetBeats) finish();
@@ -369,7 +393,8 @@
 
             const finish = () => {
                 if (!state.active) return;
-                state.active = false;
+                state.active = false; // Esto detiene automáticamente el renderLoop
+                
                 const totalTime = ((Date.now() - state.start) / 1000).toFixed(2);
 
                 if (totalTime < CONFIG.minTimePossible) {
@@ -380,6 +405,7 @@
                 AudioEngine.win(); 
                 if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); 
 
+                // Revelar la imagen full HD
                 ui.fullImage.style.opacity = 1;
 
                 setTimeout(() => {
