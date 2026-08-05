@@ -54,7 +54,6 @@
             font-family: 'Montserrat', sans-serif; font-weight: bold; transition: border-color 0.3s;
         }
         input:focus { outline: none; border-color: var(--brand-color); }
-        #player-name { text-transform: capitalize; }
 
         button {
             width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900;
@@ -131,7 +130,7 @@
             <h2>Cómo Jugar</h2>
             <div class="instruction-item">
                 <div class="instruction-icon">📱</div>
-                <div>Agita tu celular rápidamente para encender las luces.</div>
+                <div>Agita tu celular rápidamente para encender las luces de abajo hacia arriba.</div>
             </div>
             <button id="btn-start">¡LISTO, VAMOS!</button>
         </div>
@@ -156,9 +155,9 @@
     </div>
 
     <div id="game-container" class="game-wrapper">
-        <img src="imagen1.png" class="base-img" alt="Oscura">
+        <img src="image_a215bf.png" class="base-img" alt="Oscura">
         <canvas id="reveal-canvas"></canvas>
-        <img src="imagen2.png" id="full-image" class="full-img" alt="Iluminada">
+        <img src="image_a215a1.png" id="full-image" class="full-img" alt="Iluminada">
     </div>
 
     <canvas id="confetti-canvas"></canvas>
@@ -168,10 +167,9 @@
         (function() {
             const CONFIG = Object.freeze({
                 webhookUrl: "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec", 
-                targetBeats: 600, 
+                targetBeats: 600, // Movimientos totales para ganar
                 threshold: 15,
-                minTimePossible: 2.0,
-                maxLights: 150 // Número total de destellos que se dibujarán
+                minTimePossible: 2.0
             });
 
             const AudioEngine = {
@@ -189,7 +187,7 @@
                 },
                 beep: function() { this.playTone(440, 'square', 0.2, 0.1); }, 
                 go: function() { this.playTone(880, 'square', 0.4, 0.2); },   
-                tick: function() { this.playTone(600, 'sine', 0.05, 0.02); },  
+                tick: function() { this.playTone(800, 'sine', 0.03, 0.015); }, // Sonido más corto y agudo para luces individuales
                 win: function() { 
                     this.playTone(440, 'sine', 0.5); 
                     setTimeout(() => this.playTone(554, 'sine', 0.5), 100); 
@@ -199,8 +197,8 @@
 
             let state = { active: false, beats: 0, start: 0, name: "", lastBeatTime: 0 };
             
-            let allLights = []; // Lista maestra ordenada (de abajo hacia arriba)
-            let activeLights = []; // Luces actualmente visibles
+            let allLights = []; // Lista maestra ordenada (Línea por línea de abajo hacia arriba)
+            let activeLights = []; 
             let animationFrameId = null;
 
             const ui = {
@@ -220,25 +218,24 @@
 
             const ctx = ui.revealCanvas.getContext("2d");
 
-            function drawImageContain(ctx, img, w, h) {
-                let imgRatio = img.naturalWidth / img.naturalHeight; 
-                if (isNaN(imgRatio) || imgRatio === 0) return; 
-
-                let canvasRatio = w / h;
+            // Función para obtener las coordenadas exactas de la imagen dentro del canvas (Evita pintar en los bordes negros)
+            function getImageBounds(canvasW, canvasH, imgW, imgH) {
+                let imgRatio = imgW / imgH; 
+                let canvasRatio = canvasW / canvasH;
                 let drawW, drawH, drawX, drawY;
 
                 if (imgRatio > canvasRatio) {
-                    drawW = w;
-                    drawH = w / imgRatio;
-                    drawX = 0;
-                    drawY = (h - drawH) / 2;
+                    drawW = canvasW; drawH = canvasW / imgRatio;
+                    drawX = 0; drawY = (canvasH - drawH) / 2;
                 } else {
-                    drawW = h * imgRatio;
-                    drawH = h;
-                    drawX = (w - drawW) / 2;
-                    drawY = 0;
+                    drawW = canvasH * imgRatio; drawH = canvasH;
+                    drawX = (canvasW - drawW) / 2; drawY = 0;
                 }
-                ctx.drawImage(img, drawX, drawY, drawW, drawH);
+                return { x: drawX, y: drawY, w: drawW, h: drawH };
+            }
+
+            function drawImageContain(ctx, img, bounds) {
+                ctx.drawImage(img, bounds.x, bounds.y, bounds.w, bounds.h);
             }
 
             ui.btnNext.onclick = () => {
@@ -284,6 +281,8 @@
                 }, 1000);
             }
 
+            let imageBounds = null;
+
             function renderLoop() {
                 if (!state.active && activeLights.length === 0) return;
 
@@ -292,7 +291,7 @@
                 
                 activeLights.forEach(light => {
                     if (light.alpha < 1) {
-                        light.alpha += 0.05; // Velocidad de fade-in de la luz individual
+                        light.alpha += 0.15; // Fade-in más rápido para que se sienta reactivo
                     }
                     
                     const grad = ctx.createRadialGradient(light.x, light.y, 0, light.x, light.y, light.radius);
@@ -306,7 +305,7 @@
                 });
 
                 ctx.globalCompositeOperation = 'source-in';
-                drawImageContain(ctx, ui.fullImage, ui.revealCanvas.width, ui.revealCanvas.height);
+                drawImageContain(ctx, ui.fullImage, imageBounds);
 
                 animationFrameId = requestAnimationFrame(renderLoop);
             }
@@ -320,21 +319,48 @@
                 ui.revealCanvas.height = window.innerHeight;
                 ui.fullImage.style.opacity = 0;
 
-                // 1. GENERAR TODAS LAS LUCES Y ORDENARLAS DE ABAJO HACIA ARRIBA
+                // 1. OBTENEMOS EL ÁREA EXACTA DE LA IMAGEN EN PANTALLA
+                imageBounds = getImageBounds(window.innerWidth, window.innerHeight, ui.fullImage.naturalWidth, ui.fullImage.naturalHeight);
+
+                // 2. GENERADOR DE CUADRÍCULA (Líneas Horizontales)
                 allLights = [];
                 activeLights = [];
                 
-                for(let i = 0; i < CONFIG.maxLights; i++) {
-                    allLights.push({
-                        x: Math.random() * ui.revealCanvas.width,
-                        y: Math.random() * ui.revealCanvas.height, // Y aleatorio
-                        radius: Math.random() * 40 + 20, 
-                        alpha: 0
-                    });
+                const numRows = 40; // Dividimos la imagen en 40 líneas (de abajo hacia arriba)
+                const pointsPerRow = CONFIG.targetBeats / numRows; // 15 luces por línea (600 luces totales)
+
+                // yStart es la parte más baja de la imagen. yEnd es la parte más alta.
+                const startY = imageBounds.y + imageBounds.h; 
+                const endY = imageBounds.y;
+
+                for (let r = 0; r < numRows; r++) {
+                    // Calculamos la posición Y de esta fila (r=0 es la base de abajo)
+                    let yPos = startY - ((startY - endY) * (r / (numRows - 1)));
+
+                    let rowPoints = [];
+                    for (let c = 0; c < pointsPerRow; c++) {
+                        // Repartimos los puntos a lo ancho de la imagen
+                        let xPos = imageBounds.x + (imageBounds.w / pointsPerRow) * c + (imageBounds.w / pointsPerRow / 2);
+                        xPos += (Math.random() * 10 - 5); // Un mínimo desorden para que no sea un bloque robótico
+
+                        // LÓGICA DE LA PLATAFORMA VS CÚPULA:
+                        // Si estamos en el 20% inferior de la imagen (r < 8), es la plataforma de Santander Arena
+                        let isPlatform = (r / numRows) < 0.20; 
+                        
+                        // Plataforma: Círculos grandes (30-45px) para pintar todo de rojo sólido
+                        // Cúpula: Círculos muy pequeños (8-16px) para ser "luces puntuales"
+                        let radius = isPlatform ? (Math.random() * 15 + 30) : (Math.random() * 8 + 8); 
+
+                        rowPoints.push({ x: xPos, y: yPos, radius: radius, alpha: 0 });
+                    }
+                    
+                    // Desordenamos aleatoriamente SOLAMENTE el orden horizontal dentro de esta fila
+                    // Así la línea se llena de forma salpicada antes de pasar a la línea de más arriba
+                    rowPoints.sort(() => Math.random() - 0.5); 
+                    
+                    // Agregamos esta fila completa a la lista maestra
+                    allLights = allLights.concat(rowPoints);
                 }
-                
-                // ORDEN CRÍTICO: Mayor Y (más abajo en pantalla) a Menor Y (más arriba en pantalla)
-                allLights.sort((a, b) => b.y - a.y);
                 
                 window.addEventListener("devicemotion", handleMotion);
                 ui.gameContainer.addEventListener("click", handleTap); 
@@ -354,27 +380,23 @@
                 const now = Date.now();
                 if(now - state.lastBeatTime < 50) return; 
                 state.lastBeatTime = now; 
-                
-                // Un clic en pantalla suma exactamente los puntos para encender 1 SOLA LUZ
-                addBeat( CONFIG.targetBeats / CONFIG.maxLights ); 
+                addBeat(5); // Tocar la pantalla revela 5 luces de golpe para avanzar
             };
 
             const addBeat = (amount) => {
                 state.beats += amount;
+                
+                // Con targetBeats = 600 y 600 luces, cada beat revela EXACTAMENTE 1 luz en orden
+                const targetLightCount = Math.min(Math.floor(state.beats), allLights.length);
 
-                // ¿Cuántas luces deben estar encendidas en este momento del juego?
-                const progress = Math.min(state.beats / CONFIG.targetBeats, 1);
-                const targetLightCount = Math.floor(progress * CONFIG.maxLights);
-
-                // Si toca encender una nueva luz, la sacamos de nuestra lista ordenada
                 while (activeLights.length < targetLightCount && activeLights.length < allLights.length) {
-                    
-                    // Al agregar desde el índice de activeLights.length,
-                    // estamos agregando secuencialmente las luces ordenadas desde abajo hacia arriba.
                     activeLights.push(allLights[activeLights.length]);
 
-                    AudioEngine.tick();
-                    if(navigator.vibrate) navigator.vibrate(10);
+                    // Sonido y vibración ocasional para no saturar el celular
+                    if (activeLights.length % 3 === 0) {
+                        AudioEngine.tick();
+                        if(navigator.vibrate) navigator.vibrate(10);
+                    }
                 }
 
                 if (state.beats >= CONFIG.targetBeats) finish();
@@ -391,7 +413,7 @@
                 }
 
                 setTimeout(() => {
-                    ui.fullImage.style.opacity = 1; // Fade in de la victoria total
+                    ui.fullImage.style.opacity = 1; 
                     AudioEngine.win(); 
                     if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); 
 
@@ -405,7 +427,7 @@
                         sendData(totalTime);
                     }, 1500);
                     
-                }, 500);
+                }, 300);
             };
 
             const sendData = (time) => {
