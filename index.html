@@ -9,7 +9,7 @@
     <style>
         :root {
             --brand-color: #FF0000; 
-            --dark-bg: rgba(15, 15, 15, 0.95);
+            --dark-bg: rgba(10, 10, 10, 0.95);
             --bg-image: url('fondo.png'); 
         }
 
@@ -24,204 +24,140 @@
             background-size: cover; background-position: center; background-repeat: no-repeat;
         }
 
-        .screen {
-            position: fixed; inset: 0; 
-            display: flex; flex-direction: column;
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px); display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 100;
             transition: opacity 0.4s ease, transform 0.4s ease;
-            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px);
         }
 
-        .hidden { opacity: 0; pointer-events: none; transform: scale(0.95); position: absolute; z-index: -1; }
-
-        /* --- TICKET FORMULARIO --- */
-        .ticket-panel {
-            background-image: url('ticket.png'); 
-            background-size: cover; 
-            background-repeat: no-repeat;
-            background-position: center;
-            width: 100vw; 
-            height: 100vh; 
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            padding: 32vh 10% 5vh 10%; 
-            text-align: center; 
-            position: relative;
-            background-color: #1a1a1a;
-        }
-
-        /* --- PANELES TRADICIONALES --- */
         .panel {
             background: var(--dark-bg);
-            border: 2px solid var(--brand-color); 
-            border-radius: 16px; 
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 0, 0, 0.3);
-            padding: 30px 25px; 
-            width: 90%; 
-            max-width: 400px;
-            text-align: center; 
-            position: relative;
+            border: 4px solid var(--brand-color);
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4), inset 0 0 10px rgba(255, 0, 0, 0.1);
+            padding: 35px 25px; width: 90%; max-width: 400px;
+            text-align: center; position: relative;
         }
 
-        h2 { color: var(--brand-color); font-size: 1.6rem; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; text-shadow: 1px 1px 0px #000; }
+        .hidden { opacity: 0; pointer-events: none; transform: scale(0.95); position: absolute; }
 
-        .form-group { text-align: left; margin-bottom: 12px; }
-        .form-group label { color: #fff; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold; text-shadow: 1px 1px 2px #000;}
+        h2 { color: var(--brand-color); font-size: 1.8rem; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; text-shadow: 2px 2px 0px #000; }
+
+        .form-group { text-align: left; margin-bottom: 15px; }
+        .form-group label { color: #fff; font-size: 0.9rem; margin-bottom: 5px; display: block; }
 
         input {
-            width: 100%; padding: 12px 14px; font-size: 1rem;
-            background: rgba(25, 25, 25, 0.95); color: #fff;
-            border: 1px solid #444; border-radius: 8px; 
+            width: 100%; padding: 15px; font-size: 1.1rem;
+            background: #111; color: var(--brand-color);
+            border: 2px solid #444; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
             font-family: 'Montserrat', sans-serif; font-weight: bold; transition: border-color 0.3s;
         }
-        input:focus { outline: none; border-color: var(--brand-color); background: #000; }
+        input:focus { outline: none; border-color: var(--brand-color); }
 
-        /* --- BOTONES MODERNOS --- */
         button {
-            width: 100%; padding: 15px; font-size: 1.2rem; font-weight: 800;
+            width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900;
             background: var(--brand-color); color: #fff; 
-            border: none; border-radius: 10px; 
+            border: none; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
             cursor: pointer; text-transform: uppercase; margin-top: 15px;
-            box-shadow: 0 4px 0px #990000; transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 5px 0px #880000; transition: transform 0.1s, box-shadow 0.1s;
         }
-        button:active { transform: translateY(4px); box-shadow: 0 0px 0px #990000; }
+        button:active { transform: translateY(5px); box-shadow: 0 0px 0px #880000; }
 
-        .btn-secondary { background: #1a1a1a; color: #fff; border: 1px solid #444; box-shadow: 0 4px 0px #000; }
-        .btn-secondary:active { box-shadow: 0 0px 0px #000; }
-        .btn-half { width: 48%; display: inline-block; font-size: 1rem; padding: 15px 5px;}
+        .btn-secondary {
+            background: #111; color: var(--brand-color);
+            border: 2px solid var(--brand-color);
+            box-shadow: 0 5px 0px rgba(255, 0, 0, 0.3); margin-top: 25px;
+        }
+        .btn-secondary:active { box-shadow: 0 0px 0px rgba(255, 0, 0, 0.3); }
 
-        /* --- VIDEOS --- */
-        video { width: 100vw; height: 100vh; object-fit: cover; background: #000; }
+        .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 1rem; }
+        .instruction-icon { font-size: 2rem; margin-right: 15px; background: #222; border-radius: 50%; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(255, 0, 0, 0.3); }
 
-        /* --- JUEGO E IMÁGENES --- */
-        .game-wrapper { position: relative; width: 100vw; height: 100vh; display: none; z-index: 10; background-color: #000; }
-        .base-img, .full-img, .street-img, #reveal-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        /* --- ESTILOS DEL JUEGO --- */
+        .game-wrapper {
+            position: relative; 
+            width: 100vw; 
+            height: 100vh; 
+            display: none; 
+            z-index: 10;
+            background-color: #000;
+        }
         
-        .base-img { z-index: 1; }
-        #reveal-canvas { z-index: 2; }
-        .full-img { opacity: 0; transition: opacity 1s ease; z-index: 3; }
-        .street-img { opacity: 0; transition: opacity 2s ease; z-index: 4; }
+        .base-img, .full-img, #reveal-canvas {
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            object-fit: contain; 
+            pointer-events: none;
+        }
+        
+        .full-img {
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out; 
+            z-index: 3;
+        }
 
-        .big-text { font-size: 3.5rem; margin: 5px 0 15px 0; font-weight: 900; color: var(--brand-color); }
+        #reveal-canvas {
+            z-index: 2;
+        }
+        .base-img {
+            z-index: 1;
+        }
+
+        .big-text { font-size: 3.5rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
+
         #countdown-text { font-size: 8rem; font-weight: 900; color: var(--brand-color); text-shadow: 5px 5px 0px #000; animation: pop 1s infinite; }
         @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
-        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 200; }
 
-        /* --- DISEÑO DE TABLAS DE RANKING --- */
-        .ranking-table { 
-            width: 100%; color: white; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem;
-            background: #111; border-radius: 8px; overflow: hidden; border: 1px solid #333;
-        }
-        .ranking-table th { background-color: var(--brand-color); color: #fff; padding: 12px 10px; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;}
-        .ranking-table td { padding: 12px 10px; border-bottom: 1px solid #222; }
-        .ranking-table tr:last-child td { border-bottom: none; }
-        .ranking-table tr:nth-child(even) td { background-color: rgba(255,255,255,0.03); } 
-        .rank-highlight td { background: rgba(255, 0, 0, 0.25); font-weight: 900; color: #fff;}
-        
-        .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 25px; color: #ddd; font-size: 0.95rem; line-height: 1.4; }
-        .instruction-icon { font-size: 2rem; margin-right: 15px; background: #222; border-radius: 12px; padding: 12px; border: 1px solid #444; }
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 200; }
     </style>
 </head>
 <body>
 
-    <!-- MÚSICA DE FONDO -->
-    <audio id="bg-audio" loop preload="auto">
-        <source src="background.mp3" type="audio/mpeg">
-    </audio>
-
-    <!-- FORMULARIO TICKET -->
-    <div id="screen-ticket" class="screen">
-        <div class="ticket-panel">
-            <div class="form-group"><label>Nombre y Apellido:</label><input type="text" id="f-nombre" placeholder="Ej: Juan Pérez"></div>
-            <div class="form-group"><label>Región:</label><input type="text" id="f-region" placeholder="Ej: Metropolitana"></div>
-            <div class="form-group"><label>Sucursal:</label><input type="text" id="f-sucursal" placeholder="Ej: Las Condes"></div>
-            <div class="form-group"><label>E-mail:</label><input type="email" id="f-email" placeholder="Ej: juan@correo.com"></div>
-            <button id="btn-submit-ticket" style="margin-top: auto; margin-bottom: 10vh;">INGRESAR</button>
-        </div>
-    </div>
-
-    <!-- VIDEO 1 -->
-    <div id="screen-video1" class="screen hidden" style="padding:0; background:#000;">
-        <video id="vid1" playsinline preload="auto">
-            <source src="video1.mp4" type="video/mp4">
-        </video>
-    </div>
-
-    <!-- MODAL DESAFÍO (CON NOMBRE PERSONALIZADO) -->
-    <div id="screen-challenge" class="screen hidden">
+    <div id="screen-form" class="overlay">
         <div class="panel">
-            <h2 id="modal-challenge-title">¿Aceptas el desafío?</h2>
-            <p style="color: #ddd; margin-bottom: 25px; font-size: 1rem;">Prepárate para iluminar la Arena con tu energía.</p>
-            <div style="display: flex; justify-content: space-between;">
-                <button id="btn-yes" class="btn-half">SÍ, ACEPTO</button>
-                <button id="btn-no" class="btn-half btn-secondary" onclick="location.reload()">NO</button>
+            <h2>Ingresa tu nombre</h2>
+            <div class="form-group">
+                <input type="text" id="player-name" placeholder="Ej: Juan Pérez" autocomplete="name">
             </div>
+            <button id="btn-next">Siguiente</button>
         </div>
     </div>
 
-    <!-- INSTRUCCIONES -->
-    <div id="screen-instructions" class="screen hidden">
+    <div id="screen-instructions" class="overlay hidden">
         <div class="panel">
             <h2>Cómo Jugar</h2>
             <div class="instruction-item">
                 <div class="instruction-icon">📱</div>
-                <div>Agita tu celular rápidamente para encender las luces, estrictamente desde la base hasta la cúpula.</div>
+                <div>Agita tu celular rápidamente para encender las luces de abajo hacia arriba.</div>
             </div>
             <button id="btn-start">¡LISTO, VAMOS!</button>
         </div>
     </div>
 
-    <div id="screen-countdown" class="screen hidden" style="background: rgba(0,0,0,0.9);">
+    <div id="screen-countdown" class="overlay hidden" style="background: rgba(0,0,0,0.9);">
         <div id="countdown-text">3</div>
     </div>
 
-    <!-- EL JUEGO (CAPAS DE IMÁGENES) -->
-    <div id="game-container" class="game-wrapper">
-        <img src="imagen1.png" class="base-img" alt="Arena Oscura">
-        <canvas id="reveal-canvas"></canvas>
-        <img src="imagen2.png" id="full-image" class="full-img" alt="Arena Iluminada">
-        <img src="imagen3.png" id="street-image" class="street-img" alt="Calles Iluminadas">
-    </div>
-
-    <!-- VIDEO 2 -->
-    <div id="screen-video2" class="screen hidden" style="padding:0; background:#000;">
-        <video id="vid2" playsinline preload="auto">
-            <source src="video2.mp4" type="video/mp4">
-        </video>
-    </div>
-
-    <!-- PANTALLA FINAL -->
-    <div id="screen-result" class="screen hidden">
+    <div id="screen-result" class="overlay hidden">
         <div class="panel">
             <h2>¡Arena Encendida!</h2>
-            <p style="color: #bbb; margin:0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Tu tiempo fue:</p>
+            <p style="color: white; font-size:1.2rem; margin:0;">Tu tiempo fue:</p>
             <p class="big-text" id="final-time">0.00s</p>
-            <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid var(--brand-color); border-radius: 8px; padding: 12px; margin: 15px 0 20px 0;">
-                <p id="rank-text" style="color: #fff; font-size: 1rem; font-weight: bold; margin: 0;">Calculando posición...</p>
+
+            <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid var(--brand-color); border-radius: 10px; padding: 15px; margin: 15px 0;">
+                <p id="rank-text" style="color: var(--brand-color); font-size: 1.1rem; font-weight: bold; margin: 0;">Calculando tu posición...</p>
             </div>
-            <button id="btn-show-top15" class="btn-secondary">🏆 VER TOP 15</button>
-            <button id="btn-show-zone" class="btn-secondary">🎯 VER MI ZONA</button>
-            <button onclick="location.reload()" style="margin-top: 25px;">JUGAR DE NUEVO</button>
+
+            <button onclick="location.reload()">JUGAR DE NUEVO</button>
         </div>
     </div>
 
-    <!-- MODALES RANKING -->
-    <div id="modal-top15" class="screen hidden">
-        <div class="panel" style="max-height: 85vh; display: flex; flex-direction: column;">
-            <h2>Top 15 Global</h2>
-            <div style="overflow-y: auto; flex-grow: 1; border-radius: 8px; margin-bottom: 15px;">
-                <table class="ranking-table" id="table-top15"></table>
-            </div>
-            <button onclick="document.getElementById('modal-top15').classList.add('hidden')">VOLVER</button>
-        </div>
-    </div>
-    <div id="modal-zone" class="screen hidden">
-        <div class="panel">
-            <h2>Tu Zona de Ranking</h2>
-            <table class="ranking-table" id="table-zone" style="margin-bottom: 20px;"></table>
-            <button onclick="document.getElementById('modal-zone').classList.add('hidden')">VOLVER</button>
-        </div>
+    <div id="game-container" class="game-wrapper">
+        <img src="imagen1.png" class="base-img" alt="Oscura">
+        <canvas id="reveal-canvas"></canvas>
+        <img src="imagen2.png" id="full-image" class="full-img" alt="Iluminada">
     </div>
 
     <canvas id="confetti-canvas"></canvas>
@@ -229,11 +165,12 @@
 
     <script>
         (function() {
-            const CONFIG = {
+            const CONFIG = Object.freeze({
                 webhookUrl: "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec", 
-                threshold: 8, // PUNTO 1: Umbral reducido de 12 a 8 para reacción casi instantánea
-                numRows: 35 
-            };
+                targetBeats: 600, // Movimientos totales para ganar
+                threshold: 15,
+                minTimePossible: 2.0
+            });
 
             const AudioEngine = {
                 ctx: null,
@@ -250,7 +187,7 @@
                 },
                 beep: function() { this.playTone(440, 'square', 0.2, 0.1); }, 
                 go: function() { this.playTone(880, 'square', 0.4, 0.2); },   
-                tick: function() { this.playTone(900, 'sine', 0.02, 0.01); }, 
+                tick: function() { this.playTone(800, 'sine', 0.03, 0.015); }, // Sonido más corto y agudo para luces individuales
                 win: function() { 
                     this.playTone(440, 'sine', 0.5); 
                     setTimeout(() => this.playTone(554, 'sine', 0.5), 100); 
@@ -258,275 +195,252 @@
                 }
             };
 
-            let state = { active: false, blinking: false, beats: 0, targetBeats: 0, start: 0, lastBeatTime: 0, formData: {} };
-            let allLights = []; 
+            let state = { active: false, beats: 0, start: 0, name: "", lastBeatTime: 0 };
+            
+            let allLights = []; // Lista maestra ordenada (Línea por línea de abajo hacia arriba)
             let activeLights = []; 
             let animationFrameId = null;
 
             const ui = {
-                bgAudio: document.getElementById("bg-audio"),
-                scrTicket: document.getElementById("screen-ticket"),
-                scrVid1: document.getElementById("screen-video1"),
-                scrChallenge: document.getElementById("screen-challenge"),
-                challengeTitle: document.getElementById("modal-challenge-title"), 
-                scrInst: document.getElementById("screen-instructions"),
-                scrCount: document.getElementById("screen-countdown"),
+                screenForm: document.getElementById("screen-form"),
+                screenInst: document.getElementById("screen-instructions"),
+                screenCount: document.getElementById("screen-countdown"),
+                screenResult: document.getElementById("screen-result"),
                 gameContainer: document.getElementById("game-container"),
-                scrVid2: document.getElementById("screen-video2"),
-                scrResult: document.getElementById("screen-result"),
-                revealCanvas: document.getElementById("reveal-canvas"),
                 fullImage: document.getElementById("full-image"),
-                streetImage: document.getElementById("street-image"),
-                vid1: document.getElementById("vid1"),
-                vid2: document.getElementById("vid2")
+                revealCanvas: document.getElementById("reveal-canvas"),
+                finalTimeText: document.getElementById("final-time"),
+                rankText: document.getElementById("rank-text"),
+                nameInput: document.getElementById("player-name"),
+                btnNext: document.getElementById("btn-next"),
+                btnStart: document.getElementById("btn-start")
             };
+
             const ctx = ui.revealCanvas.getContext("2d");
 
-            // --- FLUJO INICIAL ---
-            document.getElementById("btn-submit-ticket").onclick = () => {
-                state.formData = {
-                    nombre: document.getElementById("f-nombre").value.trim(),
-                    email: document.getElementById("f-email").value.trim()
-                };
-                if(!state.formData.nombre || !state.formData.email) return alert("Llena Nombre y E-mail para continuar.");
-                
-                const primerNombre = state.formData.nombre.split(' ')[0];
-                ui.challengeTitle.innerText = `¿${primerNombre}, Aceptas el desafío?`;
+            // Función para obtener las coordenadas exactas de la imagen dentro del canvas (Evita pintar en los bordes negros)
+            function getImageBounds(canvasW, canvasH, imgW, imgH) {
+                let imgRatio = imgW / imgH; 
+                let canvasRatio = canvasW / canvasH;
+                let drawW, drawH, drawX, drawY;
 
-                // INICIAR AUDIO DE FONDO
-                ui.bgAudio.volume = 0.4; 
-                ui.bgAudio.play().catch(e => console.log("Autoplay de audio bloqueado: ", e));
-                
+                if (imgRatio > canvasRatio) {
+                    drawW = canvasW; drawH = canvasW / imgRatio;
+                    drawX = 0; drawY = (canvasH - drawH) / 2;
+                } else {
+                    drawW = canvasH * imgRatio; drawH = canvasH;
+                    drawX = (canvasW - drawW) / 2; drawY = 0;
+                }
+                return { x: drawX, y: drawY, w: drawW, h: drawH };
+            }
+
+            function drawImageContain(ctx, img, bounds) {
+                ctx.drawImage(img, bounds.x, bounds.y, bounds.w, bounds.h);
+            }
+
+            ui.btnNext.onclick = () => {
+                const name = ui.nameInput.value.trim();
+                if(!name) return alert("Por favor, ingresa tu nombre.");
+                state.name = name;
+                ui.screenForm.classList.add("hidden");
+                setTimeout(() => ui.screenInst.classList.remove("hidden"), 400);
+            };
+
+            ui.btnStart.onclick = async () => {
                 AudioEngine.init();
-                ui.scrTicket.classList.add("hidden");
-                
-                ui.scrVid1.classList.remove("hidden");
-                ui.vid1.play().catch(() => ui.vid1.dispatchEvent(new Event('ended'))); 
-            };
-
-            ui.vid1.onended = () => {
-                ui.scrVid1.classList.add("hidden");
-                ui.scrChallenge.classList.remove("hidden");
-            };
-
-            document.getElementById("btn-yes").onclick = async () => {
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
                     try { await DeviceMotionEvent.requestPermission(); } catch (e) { }
                 }
-                ui.scrChallenge.classList.add("hidden");
-                ui.scrInst.classList.remove("hidden");
+                ui.screenInst.classList.add("hidden");
+                setTimeout(startCountdown, 400);
             };
-
-            document.getElementById("btn-start").onclick = () => {
-                ui.scrInst.classList.add("hidden");
-                startCountdown();
-            };
-
-            function getImageBounds(canvasW, canvasH, imgW, imgH) {
-                let imgRatio = imgW / imgH; let canvasRatio = canvasW / canvasH;
-                if (imgRatio > canvasRatio) return { x: 0, y: (canvasH - (canvasW/imgRatio))/2, w: canvasW, h: canvasW/imgRatio };
-                return { x: (canvasW - (canvasH*imgRatio))/2, y: 0, w: canvasH*imgRatio, h: canvasH };
-            }
 
             function startCountdown() {
-                ui.scrCount.classList.remove("hidden");
-                let count = 3; document.getElementById("countdown-text").innerText = count; AudioEngine.beep();
+                ui.screenCount.classList.remove("hidden");
+                let count = 3;
+                document.getElementById("countdown-text").innerText = count;
+                AudioEngine.beep();
+
                 const interval = setInterval(() => {
                     count--;
-                    if (count > 0) { document.getElementById("countdown-text").innerText = count; AudioEngine.beep(); } 
-                    else if (count === 0) {
+                    if (count > 0) {
+                        document.getElementById("countdown-text").innerText = count;
+                        AudioEngine.beep();
+                    } else if (count === 0) {
                         document.getElementById("countdown-text").innerText = "¡AGITA!";
-                        document.getElementById("countdown-text").style.fontSize = "5rem"; AudioEngine.go();
+                        document.getElementById("countdown-text").style.fontSize = "5rem";
+                        AudioEngine.go();
                         if(navigator.vibrate) navigator.vibrate(500); 
                     } else {
                         clearInterval(interval);
-                        ui.scrCount.classList.add("hidden");
+                        ui.screenCount.classList.add("hidden");
                         ui.gameContainer.style.display = "block";
+                        
                         setTimeout(startGame, 50);
                     }
                 }, 1000);
             }
 
-            // --- LÓGICA ESTRICTA DE LA CÚPULA 3D ---
-            function startGame() {
-                state.active = true; state.blinking = false; state.start = Date.now(); state.beats = 0;
-                ui.revealCanvas.width = window.innerWidth; ui.revealCanvas.height = window.innerHeight;
-                ui.fullImage.style.opacity = 0;
-                ui.streetImage.style.opacity = 0;
+            let imageBounds = null;
 
-                const bounds = getImageBounds(window.innerWidth, window.innerHeight, ui.fullImage.naturalWidth, ui.fullImage.naturalHeight);
-                allLights = []; activeLights = [];
+            function renderLoop() {
+                if (!state.active && activeLights.length === 0) return;
+
+                ctx.clearRect(0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
+                ctx.globalCompositeOperation = 'source-over';
                 
-                const yStart = bounds.y + bounds.h * 0.82; 
-                const yEnd = bounds.y + bounds.h * 0.45;   
-
-                let rowWidths = [];
-                let totalWidth = 0;
-
-                for (let r = 0; r < CONFIG.numRows; r++) {
-                    let progress = r / (CONFIG.numRows - 1); 
-                    let w;
-                    if (progress < 0.15) { w = 0.96; } 
-                    else {
-                        let d = (progress - 0.15) / 0.85;
-                        w = 0.92 * Math.sqrt(1 - d * d); 
-                    }
-                    rowWidths.push(w);
-                    totalWidth += w;
-                }
-
-                for (let r = 0; r < CONFIG.numRows; r++) {
-                    let progress = r / (CONFIG.numRows - 1);
-                    let yPos = yStart - (yStart - yEnd) * progress;
-                    
-                    let count = Math.floor((rowWidths[r] / totalWidth) * 600);
-                    if (count === 0) count = 1; 
-
-                    let rowW_px = rowWidths[r] * bounds.w;
-                    let startX = bounds.x + bounds.w / 2 - rowW_px / 2;
-                    let step = rowW_px / count;
-
-                    let rowLights = [];
-                    for (let c = 0; c < count; c++) {
-                        let xPos = startX + step * c + step / 2;
-                        xPos += (Math.random() * 6 - 3); 
-                        let isPlatform = progress < 0.15;
-                        let radius = isPlatform ? (Math.random() * 6 + 18) : (Math.random() * 4 + 7); 
-                        // PUNTO 2: Inicializan en 0 (totalmente apagadas), pero se encenderán rápido al entrar
-                        rowLights.push({ x: xPos, y: yPos, radius: radius, alpha: 0 }); 
+                activeLights.forEach(light => {
+                    if (light.alpha < 1) {
+                        light.alpha += 0.15; // Fade-in más rápido para que se sienta reactivo
                     }
                     
-                    rowLights.sort(() => Math.random() - 0.5); 
-                    allLights = allLights.concat(rowLights);
-                }
+                    const grad = ctx.createRadialGradient(light.x, light.y, 0, light.x, light.y, light.radius);
+                    grad.addColorStop(0, `rgba(255, 255, 255, ${light.alpha})`);
+                    grad.addColorStop(1, `rgba(255, 255, 255, 0)`); 
+                    
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(light.x, light.y, light.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                });
 
-                state.targetBeats = allLights.length; 
+                ctx.globalCompositeOperation = 'source-in';
+                drawImageContain(ctx, ui.fullImage, imageBounds);
+
+                animationFrameId = requestAnimationFrame(renderLoop);
+            }
+
+            function startGame() {
+                state.active = true; 
+                state.start = Date.now(); 
+                state.beats = 0;
+                
+                ui.revealCanvas.width = window.innerWidth;
+                ui.revealCanvas.height = window.innerHeight;
+                ui.fullImage.style.opacity = 0;
+
+                // 1. OBTENEMOS EL ÁREA EXACTA DE LA IMAGEN EN PANTALLA
+                imageBounds = getImageBounds(window.innerWidth, window.innerHeight, ui.fullImage.naturalWidth, ui.fullImage.naturalHeight);
+
+                // 2. GENERADOR DE CUADRÍCULA (Líneas Horizontales)
+                allLights = [];
+                activeLights = [];
+                
+                const numRows = 40; // Dividimos la imagen en 40 líneas (de abajo hacia arriba)
+                const pointsPerRow = CONFIG.targetBeats / numRows; // 15 luces por línea (600 luces totales)
+
+                // yStart es la parte más baja de la imagen. yEnd es la parte más alta.
+                const startY = imageBounds.y + imageBounds.h; 
+                const endY = imageBounds.y;
+
+                for (let r = 0; r < numRows; r++) {
+                    // Calculamos la posición Y de esta fila (r=0 es la base de abajo)
+                    let yPos = startY - ((startY - endY) * (r / (numRows - 1)));
+
+                    let rowPoints = [];
+                    for (let c = 0; c < pointsPerRow; c++) {
+                        // Repartimos los puntos a lo ancho de la imagen
+                        let xPos = imageBounds.x + (imageBounds.w / pointsPerRow) * c + (imageBounds.w / pointsPerRow / 2);
+                        xPos += (Math.random() * 10 - 5); // Un mínimo desorden para que no sea un bloque robótico
+
+                        // LÓGICA DE LA PLATAFORMA VS CÚPULA:
+                        // Si estamos en el 20% inferior de la imagen (r < 8), es la plataforma de Santander Arena
+                        let isPlatform = (r / numRows) < 0.20; 
+                        
+                        // Plataforma: Círculos grandes (30-45px) para pintar todo de rojo sólido
+                        // Cúpula: Círculos muy pequeños (8-16px) para ser "luces puntuales"
+                        let radius = isPlatform ? (Math.random() * 15 + 30) : (Math.random() * 8 + 8); 
+
+                        rowPoints.push({ x: xPos, y: yPos, radius: radius, alpha: 0 });
+                    }
+                    
+                    // Desordenamos aleatoriamente SOLAMENTE el orden horizontal dentro de esta fila
+                    // Así la línea se llena de forma salpicada antes de pasar a la línea de más arriba
+                    rowPoints.sort(() => Math.random() - 0.5); 
+                    
+                    // Agregamos esta fila completa a la lista maestra
+                    allLights = allLights.concat(rowPoints);
+                }
                 
                 window.addEventListener("devicemotion", handleMotion);
                 ui.gameContainer.addEventListener("click", handleTap); 
+                
                 animationFrameId = requestAnimationFrame(renderLoop);
             }
 
             const handleMotion = (e) => {
                 if (!state.active) return;
                 const acc = e.acceleration;
-                const force = Math.abs(acc.x||0) + Math.abs(acc.y||0) + Math.abs(acc.z||0);
-                if (force > CONFIG.threshold) addBeat(2);
+                const force = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
+                if (force > CONFIG.threshold) addBeat(1);
             };
 
             const handleTap = () => {
                 if (!state.active) return;
-                if(Date.now() - state.lastBeatTime < 50) return; 
-                state.lastBeatTime = Date.now(); 
-                addBeat(5); 
+                const now = Date.now();
+                if(now - state.lastBeatTime < 50) return; 
+                state.lastBeatTime = now; 
+                addBeat(5); // Tocar la pantalla revela 5 luces de golpe para avanzar
             };
 
             const addBeat = (amount) => {
-                for(let i=0; i<amount; i++) {
-                    if (activeLights.length < allLights.length) {
-                        activeLights.push(allLights[activeLights.length]); 
-                        AudioEngine.tick(); 
+                state.beats += amount;
+                
+                // Con targetBeats = 600 y 600 luces, cada beat revela EXACTAMENTE 1 luz en orden
+                const targetLightCount = Math.min(Math.floor(state.beats), allLights.length);
+
+                while (activeLights.length < targetLightCount && activeLights.length < allLights.length) {
+                    activeLights.push(allLights[activeLights.length]);
+
+                    // Sonido y vibración ocasional para no saturar el celular
+                    if (activeLights.length % 3 === 0) {
+                        AudioEngine.tick();
                         if(navigator.vibrate) navigator.vibrate(10);
                     }
                 }
 
-                if (activeLights.length >= state.targetBeats && !state.blinking) {
-                    startEndSequence();
-                }
+                if (state.beats >= CONFIG.targetBeats) finish();
             };
 
-            function startEndSequence() {
+            const finish = () => {
+                if (!state.active) return;
                 state.active = false; 
-                state.blinking = true; 
+                
                 const totalTime = ((Date.now() - state.start) / 1000).toFixed(2);
-                AudioEngine.win();
-                if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); 
-
-                setTimeout(() => { ui.fullImage.style.opacity = 1; }, 200);
-                setTimeout(() => { ui.streetImage.style.opacity = 1; }, 1200);
+                if (totalTime < CONFIG.minTimePossible) {
+                    alert("¡Demasiado rápido! Parece trampa.");
+                    location.reload(); return;
+                }
 
                 setTimeout(() => {
-                    state.blinking = false;
-                    ui.gameContainer.style.display = "none";
-                    launchVideo2(totalTime);
-                }, 4000);
-            }
+                    ui.fullImage.style.opacity = 1; 
+                    AudioEngine.win(); 
+                    if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); 
 
-            function renderLoop() {
-                if (!state.active && !state.blinking) return;
-
-                ctx.clearRect(0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
-                ctx.globalCompositeOperation = 'source-over';
-                
-                let globalAlphaMod = 1;
-                if (state.blinking) {
-                    globalAlphaMod = 0.3 + (Math.sin(Date.now() / 120) + 1) / 2 * 0.7; 
-                }
-
-                activeLights.forEach(light => {
-                    // PUNTO 2: Transición rápida para que nazcan de la oscuridad total sin demoras
-                    if (!state.blinking && light.alpha < 1) light.alpha += 0.25; 
+                    setTimeout(() => {
+                        ui.finalTimeText.innerText = `${totalTime}s`;
+                        ui.screenResult.classList.remove("hidden");
+                        
+                        const myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true });
+                        myConfetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, colors: ['#FF0000', '#000000', '#ffffff'] });
+                        
+                        sendData(totalTime);
+                    }, 1500);
                     
-                    const finalAlpha = light.alpha * globalAlphaMod; 
-                    const grad = ctx.createRadialGradient(light.x, light.y, 0, light.x, light.y, light.radius);
-                    grad.addColorStop(0, `rgba(255, 255, 255, ${finalAlpha})`);
-                    grad.addColorStop(1, `rgba(255, 255, 255, 0)`); 
-                    ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(light.x, light.y, light.radius, 0, Math.PI * 2); ctx.fill();
-                });
+                }, 300);
+            };
 
-                ctx.globalCompositeOperation = 'source-in';
-                const bounds = getImageBounds(ui.revealCanvas.width, ui.revealCanvas.height, ui.fullImage.naturalWidth, ui.fullImage.naturalHeight);
-                ctx.drawImage(ui.fullImage, bounds.x, bounds.y, bounds.w, bounds.h);
-
-                animationFrameId = requestAnimationFrame(renderLoop);
-            }
-
-            function launchVideo2(timeString) {
-                ui.bgAudio.pause();
-
-                ui.scrVid2.classList.remove("hidden");
-                ui.vid2.play().catch(() => ui.vid2.dispatchEvent(new Event('ended')));
-                
-                ui.vid2.onended = () => {
-                    ui.scrVid2.classList.add("hidden");
-                    showFinalResults(timeString);
-                };
-            }
-
-            function showFinalResults(time) {
-                document.getElementById("final-time").innerText = `${time}s`;
-                ui.scrResult.classList.remove("hidden");
-                const myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true });
-                myConfetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, colors: ['#FF0000', '#000000', '#ffffff'] });
-                
-                const payload = { ...state.formData, time: parseFloat(time), v: btoa(state.formData.nombre + time) };
-                fetch(CONFIG.webhookUrl, { method: "POST", body: JSON.stringify(payload) }).catch(()=>{});
-                generateMockRankings(time);
-            }
-
-            function generateMockRankings(myTime) {
-                const topTable = document.getElementById("table-top15");
-                const zoneTable = document.getElementById("table-zone");
-                topTable.innerHTML = "<tr><th>#</th><th>Nombre</th><th>Tiempo</th></tr>";
-                zoneTable.innerHTML = "<tr><th>#</th><th>Nombre</th><th>Tiempo</th></tr>";
-
-                for(let i=1; i<=15; i++) {
-                    topTable.innerHTML += `<tr><td>${i}</td><td>Jugador ${i}</td><td>${(8 + i*0.2).toFixed(2)}s</td></tr>`;
-                }
-
-                let pos = 45;
-                document.getElementById("rank-text").innerText = `Posición #${pos} de 150 Jugadores`;
-                
-                zoneTable.innerHTML += `<tr><td>${pos-2}</td><td>Carlos M.</td><td>${(myTime - 0.12).toFixed(2)}s</td></tr>`;
-                zoneTable.innerHTML += `<tr><td>${pos-1}</td><td>Ana V.</td><td>${(myTime - 0.05).toFixed(2)}s</td></tr>`;
-                zoneTable.innerHTML += `<tr class="rank-highlight"><td>${pos}</td><td>${state.formData.nombre} (TÚ)</td><td>${myTime}s</td></tr>`;
-                zoneTable.innerHTML += `<tr><td>${pos+1}</td><td>Luis R.</td><td>${(parseFloat(myTime) + 0.11).toFixed(2)}s</td></tr>`;
-                zoneTable.innerHTML += `<tr><td>${pos+2}</td><td>Maria F.</td><td>${(parseFloat(myTime) + 0.23).toFixed(2)}s</td></tr>`;
-            }
-
-            document.getElementById("btn-show-top15").onclick = () => document.getElementById("modal-top15").classList.remove("hidden");
-            document.getElementById("btn-show-zone").onclick = () => document.getElementById("modal-zone").classList.remove("hidden");
-
+            const sendData = (time) => {
+                const payload = { name: state.name, time: parseFloat(time), v: btoa(state.name + time) };
+                fetch(CONFIG.webhookUrl, { method: "POST", body: JSON.stringify(payload) })
+                .then(r => r.text())
+                .then(text => {
+                    try {
+                        const data = JSON.parse(text);
+                        if(data && data.posicion) ui.rankText.innerHTML = `Posición <br><span style="font-size: 2.2rem; color: #fff;">#${data.posicion}</span><br>de ${data.total}`;
+                    } catch (e) { ui.rankText.innerHTML = `¡Tiempo registrado!`; }
+                }).catch(() => ui.rankText.innerText = "¡Guardado localmente!");
+            };
         })();
     </script>
 </body>
