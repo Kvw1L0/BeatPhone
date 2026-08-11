@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Desafío Jungle - Santander Arena</title>
+    <title>Desafío Jungle</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --brand-color: #FF0000; 
             --dark-bg: rgba(10, 10, 10, 0.95);
+            --logo-size: 700px; 
             --bg-image: url('fondo.png'); 
         }
 
@@ -35,7 +36,7 @@
             background: var(--dark-bg);
             border: 4px solid var(--brand-color);
             border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4), inset 0 0 10px rgba(255, 0, 0, 0.1);
+            box-shadow: 0 0 15px rgba(252, 238, 9, 0.4), inset 0 0 10px rgba(252, 238, 9, 0.1);
             padding: 35px 25px; width: 90%; max-width: 400px;
             text-align: center; position: relative;
         }
@@ -54,56 +55,38 @@
             font-family: 'Montserrat', sans-serif; font-weight: bold; transition: border-color 0.3s;
         }
         input:focus { outline: none; border-color: var(--brand-color); }
+        #player-name { text-transform: capitalize; }
 
         button {
             width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900;
-            background: var(--brand-color); color: #fff; 
+            background: var(--brand-color); color: #000;
             border: none; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
             cursor: pointer; text-transform: uppercase; margin-top: 15px;
-            box-shadow: 0 5px 0px #880000; transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 5px 0px #b5aa05; transition: transform 0.1s, box-shadow 0.1s;
         }
-        button:active { transform: translateY(5px); box-shadow: 0 0px 0px #880000; }
+        button:active { transform: translateY(5px); box-shadow: 0 0px 0px #b5aa05; }
 
         .btn-secondary {
             background: #111; color: var(--brand-color);
             border: 2px solid var(--brand-color);
-            box-shadow: 0 5px 0px rgba(255, 0, 0, 0.3); margin-top: 25px;
+            box-shadow: 0 5px 0px rgba(252, 238, 9, 0.3); margin-top: 25px;
         }
-        .btn-secondary:active { box-shadow: 0 0px 0px rgba(255, 0, 0, 0.3); }
+        .btn-secondary:active { box-shadow: 0 0px 0px rgba(252, 238, 9, 0.3); }
 
         .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 1rem; }
-        .instruction-icon { font-size: 2rem; margin-right: 15px; background: #222; border-radius: 50%; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(255, 0, 0, 0.3); }
+        .instruction-icon { font-size: 2rem; margin-right: 15px; background: #222; border-radius: 50%; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(252, 238, 9, 0.3); }
 
-        /* --- ESTILOS DEL JUEGO --- */
-        .game-wrapper {
-            position: relative; 
-            width: 100vw; 
-            height: 100vh; 
-            display: none; 
-            z-index: 10;
-            background-color: #000;
-        }
-        
-        .base-img, .full-img, #reveal-canvas {
-            position: absolute; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            object-fit: contain; 
-            pointer-events: none;
-        }
-        
-        .full-img {
-            opacity: 0;
-            transition: opacity 1.5s ease-in-out; 
-            z-index: 3;
-        }
+        .logo-wrapper { position: relative; width: var(--logo-size); height: var(--logo-size); display: none; z-index: 10; }
+        .logo-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
-        #reveal-canvas {
-            z-index: 2;
-        }
-        .base-img {
-            z-index: 1;
-        }
+        .full-color {
+    z-index: 2; opacity: 1; 
+    clip-path: inset(100% 0 0 0); -webkit-clip-path: inset(100% 0 0 0);
+    transform: translateZ(0); will-change: clip-path;
+    /* --- MODIFICACIÓN AQUÍ --- */
+    /* Aumentamos el radio de 15px a 25px y la opacidad a 0.9 */
+    filter: drop-shadow(0 0 25px rgba(252, 238, 9, 0.9)); 
+}
 
         .big-text { font-size: 3.5rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
 
@@ -111,14 +94,16 @@
         @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
 
         #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 200; }
+        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div id="screen-form" class="overlay">
         <div class="panel">
-            <h2>Ingresa tu nombre</h2>
+            <h2>Ingresa tu nombre para jugar</h2>
             <div class="form-group">
+                <label>Nombre:</label>
                 <input type="text" id="player-name" placeholder="Ej: Juan Pérez" autocomplete="name">
             </div>
             <button id="btn-next">Siguiente</button>
@@ -130,7 +115,11 @@
             <h2>Cómo Jugar</h2>
             <div class="instruction-item">
                 <div class="instruction-icon">📱</div>
-                <div>Agita tu celular rápidamente para encender las luces de abajo hacia arriba.</div>
+                <div>Agita tu celular rápidamente para revelar la imagen oculta.</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-icon">⏱️</div>
+                <div>El tiempo más rápido se lleva el premio.</div>
             </div>
             <button id="btn-start">¡LISTO, VAMOS!</button>
         </div>
@@ -142,22 +131,21 @@
 
     <div id="screen-result" class="overlay hidden">
         <div class="panel">
-            <h2>¡Arena Encendida!</h2>
+            <h2>¡Misión Completa!</h2>
             <p style="color: white; font-size:1.2rem; margin:0;">Tu tiempo fue:</p>
             <p class="big-text" id="final-time">0.00s</p>
 
-            <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid var(--brand-color); border-radius: 10px; padding: 15px; margin: 15px 0;">
-                <p id="rank-text" style="color: var(--brand-color); font-size: 1.1rem; font-weight: bold; margin: 0;">Calculando tu posición...</p>
+            <div style="background: rgba(252, 238, 9, 0.1); border: 1px solid var(--brand-color); border-radius: 10px; padding: 15px; margin: 15px 0;">
+                <p id="rank-text" style="color: var(--brand-color); font-size: 1.1rem; font-weight: bold; margin: 0; animation: pulse 0.8s infinite alternate;">Calculando tu posición...</p>
             </div>
 
+            <button onclick="window.location.href='ranking.html'" class="btn-secondary">🏆 VER RANKING</button>
             <button onclick="location.reload()">JUGAR DE NUEVO</button>
         </div>
     </div>
 
-    <div id="game-container" class="game-wrapper">
-        <img src="imagen1.png" class="base-img" alt="Oscura">
-        <canvas id="reveal-canvas"></canvas>
-        <img src="imagen2.png" id="full-image" class="full-img" alt="Iluminada">
+    <div id="game-container" class="logo-wrapper">
+        <img src="logo.png" id="full-image" class="logo-img full-color" alt="Logo Relleno Color">
     </div>
 
     <canvas id="confetti-canvas"></canvas>
@@ -167,9 +155,9 @@
         (function() {
             const CONFIG = Object.freeze({
                 webhookUrl: "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec", 
-                targetBeats: 600, // Movimientos totales para ganar
+                targetBeats: 600, 
                 threshold: 15,
-                minTimePossible: 2.0
+                minTimePossible: 2.0 
             });
 
             const AudioEngine = {
@@ -187,7 +175,7 @@
                 },
                 beep: function() { this.playTone(440, 'square', 0.2, 0.1); }, 
                 go: function() { this.playTone(880, 'square', 0.4, 0.2); },   
-                tick: function() { this.playTone(800, 'sine', 0.03, 0.015); }, // Sonido más corto y agudo para luces individuales
+                tick: function() { this.playTone(600, 'sine', 0.1, 0.02); },  
                 win: function() { 
                     this.playTone(440, 'sine', 0.5); 
                     setTimeout(() => this.playTone(554, 'sine', 0.5), 100); 
@@ -196,10 +184,7 @@
             };
 
             let state = { active: false, beats: 0, start: 0, name: "", lastBeatTime: 0 };
-            
-            let allLights = []; // Lista maestra ordenada (Línea por línea de abajo hacia arriba)
-            let activeLights = []; 
-            let animationFrameId = null;
+            let animationPending = false;
 
             const ui = {
                 screenForm: document.getElementById("screen-form"),
@@ -208,48 +193,39 @@
                 screenResult: document.getElementById("screen-result"),
                 gameContainer: document.getElementById("game-container"),
                 fullImage: document.getElementById("full-image"),
-                revealCanvas: document.getElementById("reveal-canvas"),
                 finalTimeText: document.getElementById("final-time"),
                 rankText: document.getElementById("rank-text"),
+                countText: document.getElementById("countdown-text"),
                 nameInput: document.getElementById("player-name"),
                 btnNext: document.getElementById("btn-next"),
                 btnStart: document.getElementById("btn-start")
             };
 
-            const ctx = ui.revealCanvas.getContext("2d");
-
-            // Función para obtener las coordenadas exactas de la imagen dentro del canvas (Evita pintar en los bordes negros)
-            function getImageBounds(canvasW, canvasH, imgW, imgH) {
-                let imgRatio = imgW / imgH; 
-                let canvasRatio = canvasW / canvasH;
-                let drawW, drawH, drawX, drawY;
-
-                if (imgRatio > canvasRatio) {
-                    drawW = canvasW; drawH = canvasW / imgRatio;
-                    drawX = 0; drawY = (canvasH - drawH) / 2;
-                } else {
-                    drawW = canvasH * imgRatio; drawH = canvasH;
-                    drawX = (canvasW - drawW) / 2; drawY = 0;
+            function syncOfflineData() {
+                let pending = JSON.parse(localStorage.getItem("jungle_pending") || "[]");
+                if (pending.length > 0) {
+                    pending.forEach(p => fetch(CONFIG.webhookUrl, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(p) }));
+                    localStorage.removeItem("jungle_pending");
                 }
-                return { x: drawX, y: drawY, w: drawW, h: drawH };
             }
+            syncOfflineData();
 
-            function drawImageContain(ctx, img, bounds) {
-                ctx.drawImage(img, bounds.x, bounds.y, bounds.w, bounds.h);
+            function switchScreen(hide, show) {
+                hide.classList.add("hidden");
+                setTimeout(() => show.classList.remove("hidden"), 400);
             }
 
             ui.btnNext.onclick = () => {
                 const name = ui.nameInput.value.trim();
-                if(!name) return alert("Por favor, ingresa tu nombre.");
+                if(!name) return alert("Por favor, ingresa tu nombre para jugar.");
                 state.name = name;
-                ui.screenForm.classList.add("hidden");
-                setTimeout(() => ui.screenInst.classList.remove("hidden"), 400);
+                switchScreen(ui.screenForm, ui.screenInst);
             };
 
             ui.btnStart.onclick = async () => {
                 AudioEngine.init();
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    try { await DeviceMotionEvent.requestPermission(); } catch (e) { }
+                    try { const resp = await DeviceMotionEvent.requestPermission(); } catch (e) { }
                 }
                 ui.screenInst.classList.add("hidden");
                 setTimeout(startCountdown, 400);
@@ -258,114 +234,32 @@
             function startCountdown() {
                 ui.screenCount.classList.remove("hidden");
                 let count = 3;
-                document.getElementById("countdown-text").innerText = count;
+                ui.countText.innerText = count;
                 AudioEngine.beep();
 
                 const interval = setInterval(() => {
                     count--;
                     if (count > 0) {
-                        document.getElementById("countdown-text").innerText = count;
+                        ui.countText.innerText = count;
                         AudioEngine.beep();
                     } else if (count === 0) {
-                        document.getElementById("countdown-text").innerText = "¡AGITA!";
-                        document.getElementById("countdown-text").style.fontSize = "5rem";
+                        ui.countText.innerText = "¡AGITA!";
+                        ui.countText.style.fontSize = "5rem";
                         AudioEngine.go();
                         if(navigator.vibrate) navigator.vibrate(500); 
                     } else {
                         clearInterval(interval);
                         ui.screenCount.classList.add("hidden");
                         ui.gameContainer.style.display = "block";
-                        
-                        setTimeout(startGame, 50);
+                        startGame();
                     }
                 }, 1000);
             }
 
-            let imageBounds = null;
-
-            function renderLoop() {
-                if (!state.active && activeLights.length === 0) return;
-
-                ctx.clearRect(0, 0, ui.revealCanvas.width, ui.revealCanvas.height);
-                ctx.globalCompositeOperation = 'source-over';
-                
-                activeLights.forEach(light => {
-                    if (light.alpha < 1) {
-                        light.alpha += 0.15; // Fade-in más rápido para que se sienta reactivo
-                    }
-                    
-                    const grad = ctx.createRadialGradient(light.x, light.y, 0, light.x, light.y, light.radius);
-                    grad.addColorStop(0, `rgba(255, 255, 255, ${light.alpha})`);
-                    grad.addColorStop(1, `rgba(255, 255, 255, 0)`); 
-                    
-                    ctx.fillStyle = grad;
-                    ctx.beginPath();
-                    ctx.arc(light.x, light.y, light.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-
-                ctx.globalCompositeOperation = 'source-in';
-                drawImageContain(ctx, ui.fullImage, imageBounds);
-
-                animationFrameId = requestAnimationFrame(renderLoop);
-            }
-
             function startGame() {
-                state.active = true; 
-                state.start = Date.now(); 
-                state.beats = 0;
-                
-                ui.revealCanvas.width = window.innerWidth;
-                ui.revealCanvas.height = window.innerHeight;
-                ui.fullImage.style.opacity = 0;
-
-                // 1. OBTENEMOS EL ÁREA EXACTA DE LA IMAGEN EN PANTALLA
-                imageBounds = getImageBounds(window.innerWidth, window.innerHeight, ui.fullImage.naturalWidth, ui.fullImage.naturalHeight);
-
-                // 2. GENERADOR DE CUADRÍCULA (Líneas Horizontales)
-                allLights = [];
-                activeLights = [];
-                
-                const numRows = 40; // Dividimos la imagen en 40 líneas (de abajo hacia arriba)
-                const pointsPerRow = CONFIG.targetBeats / numRows; // 15 luces por línea (600 luces totales)
-
-                // yStart es la parte más baja de la imagen. yEnd es la parte más alta.
-                const startY = imageBounds.y + imageBounds.h; 
-                const endY = imageBounds.y;
-
-                for (let r = 0; r < numRows; r++) {
-                    // Calculamos la posición Y de esta fila (r=0 es la base de abajo)
-                    let yPos = startY - ((startY - endY) * (r / (numRows - 1)));
-
-                    let rowPoints = [];
-                    for (let c = 0; c < pointsPerRow; c++) {
-                        // Repartimos los puntos a lo ancho de la imagen
-                        let xPos = imageBounds.x + (imageBounds.w / pointsPerRow) * c + (imageBounds.w / pointsPerRow / 2);
-                        xPos += (Math.random() * 10 - 5); // Un mínimo desorden para que no sea un bloque robótico
-
-                        // LÓGICA DE LA PLATAFORMA VS CÚPULA:
-                        // Si estamos en el 20% inferior de la imagen (r < 8), es la plataforma de Santander Arena
-                        let isPlatform = (r / numRows) < 0.20; 
-                        
-                        // Plataforma: Círculos grandes (30-45px) para pintar todo de rojo sólido
-                        // Cúpula: Círculos muy pequeños (8-16px) para ser "luces puntuales"
-                        let radius = isPlatform ? (Math.random() * 15 + 30) : (Math.random() * 8 + 8); 
-
-                        rowPoints.push({ x: xPos, y: yPos, radius: radius, alpha: 0 });
-                    }
-                    
-                    // Desordenamos aleatoriamente SOLAMENTE el orden horizontal dentro de esta fila
-                    // Así la línea se llena de forma salpicada antes de pasar a la línea de más arriba
-                    rowPoints.sort(() => Math.random() - 0.5); 
-                    
-                    // Agregamos esta fila completa a la lista maestra
-                    allLights = allLights.concat(rowPoints);
-                }
-                
+                state.active = true; state.start = Date.now(); state.beats = 0;
                 window.addEventListener("devicemotion", handleMotion);
-                ui.gameContainer.addEventListener("click", handleTap); 
-                
-                animationFrameId = requestAnimationFrame(renderLoop);
+                ui.gameContainer.addEventListener("click", handleTap);
             }
 
             const handleMotion = (e) => {
@@ -379,67 +273,86 @@
                 if (!state.active) return;
                 const now = Date.now();
                 if(now - state.lastBeatTime < 50) return; 
-                state.lastBeatTime = now; 
-                addBeat(5); // Tocar la pantalla revela 5 luces de golpe para avanzar
+                state.lastBeatTime = now; addBeat(5); 
             };
 
             const addBeat = (amount) => {
                 state.beats += amount;
-                
-                // Con targetBeats = 600 y 600 luces, cada beat revela EXACTAMENTE 1 luz en orden
-                const targetLightCount = Math.min(Math.floor(state.beats), allLights.length);
 
-                while (activeLights.length < targetLightCount && activeLights.length < allLights.length) {
-                    activeLights.push(allLights[activeLights.length]);
-
-                    // Sonido y vibración ocasional para no saturar el celular
-                    if (activeLights.length % 3 === 0) {
-                        AudioEngine.tick();
-                        if(navigator.vibrate) navigator.vibrate(10);
-                    }
+                if(state.beats % 20 === 0) {
+                    AudioEngine.tick();
+                    if(navigator.vibrate) navigator.vibrate(15);
                 }
 
+                const progress = Math.min((state.beats / CONFIG.targetBeats) * 100, 100);
+                const clip = 100 - progress;
+
+                if (!animationPending) {
+                    animationPending = true;
+                    requestAnimationFrame(() => {
+                        ui.fullImage.style.clipPath = `inset(${clip}% 0 0 0)`;
+                        ui.fullImage.style.webkitClipPath = `inset(${clip}% 0 0 0)`;
+                        animationPending = false;
+                    });
+                }
                 if (state.beats >= CONFIG.targetBeats) finish();
             };
 
             const finish = () => {
                 if (!state.active) return;
-                state.active = false; 
-                
+                state.active = false;
                 const totalTime = ((Date.now() - state.start) / 1000).toFixed(2);
+
                 if (totalTime < CONFIG.minTimePossible) {
-                    alert("¡Demasiado rápido! Parece trampa.");
+                    alert("¡Demasiado rápido! Parece un error o trampa.");
                     location.reload(); return;
                 }
 
-                setTimeout(() => {
-                    ui.fullImage.style.opacity = 1; 
-                    AudioEngine.win(); 
-                    if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); 
+                AudioEngine.win(); 
+                if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]); 
 
-                    setTimeout(() => {
-                        ui.finalTimeText.innerText = `${totalTime}s`;
-                        ui.screenResult.classList.remove("hidden");
-                        
-                        const myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true });
-                        myConfetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, colors: ['#FF0000', '#000000', '#ffffff'] });
-                        
-                        sendData(totalTime);
-                    }, 1500);
-                    
-                }, 300);
+                ui.finalTimeText.innerText = `${totalTime}s`;
+                ui.screenResult.classList.remove("hidden");
+                launchConfetti(); 
+                sendData(totalTime);
             };
 
             const sendData = (time) => {
                 const payload = { name: state.name, time: parseFloat(time), v: btoa(state.name + time) };
-                fetch(CONFIG.webhookUrl, { method: "POST", body: JSON.stringify(payload) })
-                .then(r => r.text())
+
+                fetch(CONFIG.webhookUrl, {
+                    method: "POST", 
+                    redirect: "follow",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+                    body: JSON.stringify(payload)
+                })
+                .then(r => r.text()) 
                 .then(text => {
+                    ui.rankText.style.animation = "none";
                     try {
                         const data = JSON.parse(text);
-                        if(data && data.posicion) ui.rankText.innerHTML = `Posición <br><span style="font-size: 2.2rem; color: #fff;">#${data.posicion}</span><br>de ${data.total}`;
-                    } catch (e) { ui.rankText.innerHTML = `¡Tiempo registrado!`; }
-                }).catch(() => ui.rankText.innerText = "¡Guardado localmente!");
+                        if(data && data.posicion) {
+                            ui.rankText.innerHTML = `¡Quedaste en la posición<br><span style="font-size: 2.2rem; color: #fff;">#${data.posicion}</span><br>de ${data.total} jugadores!`;
+                        } else {
+                            ui.rankText.innerHTML = `¡Tiempo registrado exitosamente!`;
+                        }
+                    } catch (e) {
+                        ui.rankText.innerHTML = `¡Tiempo registrado!`;
+                    }
+                })
+                .catch(() => {
+                    let pending = JSON.parse(localStorage.getItem("jungle_pending") || "[]");
+                    pending.push(payload);
+                    localStorage.setItem("jungle_pending", JSON.stringify(pending));
+
+                    ui.rankText.style.animation = "none";
+                    ui.rankText.innerText = "¡Tiempo guardado localmente! Se sincronizará pronto.";
+                });
+            };
+
+            const launchConfetti = () => {
+                const myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true });
+                myConfetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, colors: ['#FCEE09', '#000000', '#ffffff'] });
             };
         })();
     </script>
