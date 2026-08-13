@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ranking BATIPHONE</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
+<!-- Cambio a estética retro / Pixel Art -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
 <style>
-  /* ================= CONFIGURACIÓN VISUAL JUNGLE ================= */
+  /* ================= CONFIGURACIÓN VISUAL ================= */
   :root {
     --brand-color:  #FF0000; 
     --dark-bg: #000000;
     --text-glow: 0 0 15px rgba(252, 238, 9, 0.6);
-    --organic-border: 255px 15px 225px 15px/15px 225px 15px 255px; 
   }
 
   body {
@@ -21,7 +21,7 @@
     background-size: cover;
     background-position: center;
     color: white;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Press Start 2P', cursive;
     margin: 0;
     height: 100vh;
     overflow: hidden;
@@ -37,16 +37,15 @@
     z-index: -1;
   }
 
-  /* ================= ESTILOS ================= */
+  /* ================= ESTILOS BASE ================= */
   
   h1 {
-    font-size: 2.2rem; 
-    margin: 20px 0 15px 0;
+    font-size: 1.5rem; 
+    margin: 25px 0 20px 0;
     text-transform: uppercase;
     color: var(--brand-color);
-    text-shadow: 2px 2px 0px #000;
-    font-weight: 900;
-    letter-spacing: 1px;
+    text-shadow: 4px 4px 0px #000;
+    line-height: 1.5;
     text-align: center;
   }
 
@@ -54,20 +53,19 @@
     width: 95%; 
     max-width: 1000px;
     background: rgba(10, 10, 10, 0.8);
-    border: 3px solid var(--brand-color); 
-    border-radius: var(--organic-border);
+    border: 4px solid var(--brand-color); 
+    border-radius: 12px; /* Borde redondeado normal */
     padding: 15px 10px; 
     box-shadow: 0 0 15px rgba(252, 238, 9, 0.3), inset 0 0 10px rgba(252, 238, 9, 0.1);
     backdrop-filter: blur(5px);
-    overflow: hidden; /* Se deshabilita el scroll para pantalla gigante */
+    overflow: hidden; 
   }
 
   .header-row {
     display: flex;
     justify-content: space-between;
-    padding: 10px 15px;
-    font-size: 1rem; 
-    font-weight: 900;
+    padding: 15px;
+    font-size: 0.7rem; 
     border-bottom: 2px solid var(--brand-color);
     color: var(--brand-color);
     text-transform: uppercase;
@@ -83,27 +81,27 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 15px;
-    font-size: 1.1rem; 
-    font-weight: 700;
+    padding: 15px;
+    font-size: 0.8rem; 
     border-bottom: 1px solid rgba(252, 238, 9, 0.2);
     animation: fadeIn 0.5s ease-out;
   }
 
-  .rank-item:nth-child(1) { color: var(--brand-color); font-weight: 900; font-size: 1.5rem; text-shadow: var(--text-glow); }
-  .rank-item:nth-child(2) { color: #E0E0E0; font-size: 1.3rem; text-shadow: 0 0 10px rgba(255,255,255,0.4); } 
-  .rank-item:nth-child(3) { color: #CD7F32; font-size: 1.2rem; } 
+  /* Colores para el Top 3 */
+  .rank-item:nth-child(1) { color: var(--brand-color); font-size: 1.1rem; text-shadow: var(--text-glow); }
+  .rank-item:nth-child(2) { color: #E0E0E0; font-size: 0.95rem; text-shadow: 0 0 10px rgba(255,255,255,0.4); } 
+  .rank-item:nth-child(3) { color: #CD7F32; font-size: 0.85rem; } 
 
-  .rank-pos { width: 30px; text-align: center; }
+  .rank-pos { width: 40px; text-align: center; }
   .rank-name { 
     flex-grow: 1; 
     text-align: left; 
-    padding-left: 10px; 
+    padding-left: 15px; 
     white-space: nowrap; 
     overflow: hidden; 
     text-overflow: ellipsis; 
   }
-  .rank-time { font-family: monospace; font-weight: 900; }
+  .rank-time { color: #FCEE09; }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -111,42 +109,41 @@
   }
 
   .loading {
-    text-align: center; font-size: 1.2rem; padding: 30px;
-    color: var(--brand-color); opacity: 0.7; text-transform: uppercase; font-weight: bold;
+    text-align: center; font-size: 0.9rem; padding: 30px; line-height: 1.5;
+    color: var(--brand-color); opacity: 0.7; text-transform: uppercase;
     animation: pulse 1.5s infinite alternate;
   }
 
   @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
 
-  /* ================= ADAPTACIÓN PARA ESCRITORIO / TV GIGANTE ================= */
+  /* ================= ADAPTACIÓN PARA PANTALLA GIGANTE ================= */
   @media (min-width: 768px) {
     h1 {
-      font-size: 4em;
-      margin: 30px 0 20px 0;
-      letter-spacing: 2px;
+      font-size: 3rem; /* Ajustado para fuente pixel */
+      margin: 40px 0 30px 0;
     }
     .container {
-      width: 80%;
-      padding: 20px;
-      border: 4px solid var(--brand-color);
+      width: 85%;
+      padding: 30px;
+      border: 6px solid var(--brand-color);
     }
     .header-row {
-      font-size: 1.5em;
-      padding: 15px 30px;
-      border-bottom: 3px solid var(--brand-color);
+      font-size: 1.2rem;
+      padding: 20px 30px;
+      border-bottom: 4px solid var(--brand-color);
     }
     .rank-item {
-      font-size: 2em;
-      padding: 15px 30px;
+      font-size: 1.2rem;
+      padding: 20px 30px;
     }
-    .rank-pos { width: 50px; }
-    .rank-name { padding-left: 20px; }
+    .rank-pos { width: 60px; }
+    .rank-name { padding-left: 30px; }
     
-    .rank-item:nth-child(1) { font-size: 2.5em; }
-    .rank-item:nth-child(2) { font-size: 2.2em; }
-    .rank-item:nth-child(3) { font-size: 2.1em; }
+    .rank-item:nth-child(1) { font-size: 1.8rem; }
+    .rank-item:nth-child(2) { font-size: 1.5rem; }
+    .rank-item:nth-child(3) { font-size: 1.3rem; }
     
-    .loading { font-size: 1.5em; padding: 40px; }
+    .loading { font-size: 1.5rem; padding: 50px; }
   }
 
 </style>
@@ -165,15 +162,12 @@
   </div>
   
   <ul id="ranking-list">
-    <div class="loading">Cargando puntajes...</div>
+    <div class="loading">Cargando<br><br>puntajes...</div>
   </ul>
 </div>
 
 <script>
-  // La URL de tu Google Script
   const API_URL = "https://script.google.com/macros/s/AKfycbyViG0_MaktcyCywQJ1BMhx6arnVndR3qYK4gPiYU7X8lAwEs0ZfDnq5yvV7oEAI7qktg/exec";
-  
-  // Variable para almacenar el estado anterior y evitar parpadeos
   let lastDataString = ""; 
 
   async function updateRanking() {
@@ -181,18 +175,10 @@
       const response = await fetch(API_URL);
       const data = await response.json();
 
-      // Limitamos el arreglo al Top 10 para la proyección
       const top10Data = data.slice(0, 10);
-      
-      // Convertimos los datos a texto para poder compararlos
       const newDataString = JSON.stringify(top10Data);
 
-      // Si no hay cambios en el ranking respecto a la última consulta, cortamos la ejecución para no redibujar y evitar el parpadeo
-      if (newDataString === lastDataString) {
-          return;
-      }
-      
-      // Si hay datos nuevos, actualizamos nuestro registro
+      if (newDataString === lastDataString) return;
       lastDataString = newDataString;
 
       const list = document.getElementById("ranking-list");
@@ -220,10 +206,7 @@
     }
   }
 
-  // Primera carga
   updateRanking();
-  
-  // Actualización programada cada 5 segundos (5000ms) para proteger el Rate Limit de Google
   setInterval(updateRanking, 5000);
 
 </script>
