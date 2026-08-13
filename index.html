@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Desafío Jungle</title>
-    <!-- Se cambió Montserrat por Press Start 2P para el look Pixel Art -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
     <style>
@@ -18,7 +17,6 @@
 
         body {
             margin: 0; 
-            /* Se aplica la fuente retro a todo el documento */
             font-family: 'Press Start 2P', cursive; 
             display: flex; justify-content: center; align-items: center;
             height: 100vh; width: 100vw; overflow: hidden;
@@ -44,7 +42,6 @@
 
         .panel {
             background: var(--dark-bg);
-            /* Bordes rectos con esquinas redondeadas clásicas */
             border: 4px solid var(--brand-color);
             border-radius: 12px; 
             box-shadow: 0 0 15px rgba(252, 238, 9, 0.4), inset 0 0 10px rgba(252, 238, 9, 0.1);
@@ -54,7 +51,6 @@
 
         .hidden { opacity: 0; pointer-events: none; transform: scale(0.95); position: absolute; }
 
-        /* Tamaños de fuente reducidos para evitar desbordes con la fuente Pixel */
         h2 { color: var(--brand-color); font-size: 1.1rem; line-height: 1.5; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; text-shadow: 2px 2px 0px #000; }
 
         .form-group { text-align: left; margin-bottom: 15px; }
@@ -63,7 +59,6 @@
         input {
             width: 100%; padding: 15px; font-size: 0.8rem;
             background: #111; color: var(--brand-color);
-            /* Bordes rectos corporativos */
             border: 2px solid var(--brand-color); border-radius: 8px; 
             font-family: 'Press Start 2P', cursive; transition: border-color 0.3s;
         }
@@ -73,7 +68,6 @@
         button {
             width: 100%; padding: 18px; font-size: 0.9rem;
             background: var(--brand-color); color: #000;
-            /* Bordes rectos corporativos */
             border: 2px solid var(--brand-color); border-radius: 8px; 
             cursor: pointer; text-transform: uppercase; margin-top: 15px;
             font-family: 'Press Start 2P', cursive;
@@ -101,6 +95,21 @@
             z-index: 10; 
         }
         
+        /* --- NUEVO: Silueta Roja Oscura --- */
+        .silhouette-img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #4A0000; /* Color rojo oscuro */
+            -webkit-mask-image: url('logo.png');
+            -webkit-mask-size: contain;
+            -webkit-mask-position: center;
+            -webkit-mask-repeat: no-repeat;
+            mask-image: url('logo.png');
+            mask-size: contain;
+            mask-position: center;
+            mask-repeat: no-repeat;
+            z-index: 1; /* Por debajo de la imagen a color */
+        }
+
         .logo-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
         .full-color {
@@ -167,6 +176,8 @@
     </div>
 
     <div id="game-container" class="logo-wrapper">
+        <!-- Silueta generada dinámicamente -->
+        <div class="silhouette-img"></div>
         <img src="logo.png" id="full-image" class="logo-img full-color" alt="Logo Relleno Color">
     </div>
 
@@ -229,10 +240,12 @@
                     this.guitarSource.start();
                 },
                 
-                updateCrescendo: function(percentage) {
+                // ACTUALIZACIÓN DE AUDIO: Ahora recibe si el jugador está agitando o no
+                updateCrescendo: function(percentage, isShaking = true) {
                     if (this.gainNode && this.ctx) {
-                        const volume = Math.pow(percentage, 2); 
-                        this.gainNode.gain.setTargetAtTime(volume, this.ctx.currentTime, 0.1);
+                        const targetVolume = isShaking ? Math.pow(percentage, 2) : 0; 
+                        // SetTargetAtTime hace una transición suave, evitando cortes abruptos o clicks en el sonido
+                        this.gainNode.gain.setTargetAtTime(targetVolume, this.ctx.currentTime, 0.15);
                     }
                 },
                 
@@ -250,7 +263,7 @@
                 }
             };
 
-            let state = { active: false, beats: 0, progress: 0, start: 0, name: "", lastBeatTime: 0 };
+            let state = { active: false, beats: 0, progress: 0, start: 0, name: "", lastBeatTime: 0, isShaking: false, shakeTimeout: null };
             let animationPending = false;
             let hapticIntervalId = null;
 
@@ -328,7 +341,6 @@
                         AudioEngine.beep();
                     } else if (count === 0) {
                         ui.countText.innerText = "¡AGITA!";
-                        /* Se reduce a 2.5rem porque la fuente Pixel ocupa mucho espacio a los lados */
                         ui.countText.style.fontSize = "2.5rem";
                         AudioEngine.go();
                         if(navigator.vibrate) navigator.vibrate(500); 
@@ -342,16 +354,18 @@
             }
 
             function startGame() {
-                state.active = true; state.start = Date.now(); state.beats = 0; state.progress = 0;
+                state.active = true; state.start = Date.now(); state.beats = 0; state.progress = 0; state.isShaking = false;
                 
                 ui.fullImage.style.clipPath = `inset(100% 0% 0% 0%)`;
                 ui.fullImage.style.webkitClipPath = `inset(100% 0% 0% 0%)`;
 
                 AudioEngine.startGuitar();
+                AudioEngine.updateCrescendo(0, false); // Empieza en silencio
 
                 if(navigator.vibrate) {
                     hapticIntervalId = setInterval(() => {
-                        if(state.active) {
+                        // Solo vibra si está activamente agitando el celular
+                        if(state.active && state.isShaking) {
                             let vibDuration = Math.floor(5 + (state.progress * 40));
                             navigator.vibrate(vibDuration);
                         }
@@ -383,6 +397,10 @@
             const addBeat = (amount) => {
                 state.beats += amount;
 
+                // Lógica de detección de actividad
+                state.isShaking = true;
+                if (state.shakeTimeout) clearTimeout(state.shakeTimeout);
+
                 state.progress = Math.min(state.beats / CONFIG.targetBeats, 1.0);
                 const clip = Math.max(0, 100 - (state.progress * 100));
 
@@ -402,7 +420,16 @@
                     });
                 }
 
-                AudioEngine.updateCrescendo(state.progress);
+                // Sube el volumen al nivel que corresponde
+                AudioEngine.updateCrescendo(state.progress, true);
+
+                // Si pasan 300ms sin movimiento nuevo, asumimos que se detuvo
+                state.shakeTimeout = setTimeout(() => {
+                    if (state.active) {
+                        state.isShaking = false;
+                        AudioEngine.updateCrescendo(state.progress, false); // Baja volumen suavemente
+                    }
+                }, 300);
 
                 if (state.beats >= CONFIG.targetBeats) finish();
             };
@@ -418,6 +445,8 @@
                 }
 
                 if (hapticIntervalId) clearInterval(hapticIntervalId);
+                if (state.shakeTimeout) clearTimeout(state.shakeTimeout);
+                
                 ui.edgeGlow.style.boxShadow = `inset 0 0 0px rgba(255, 0, 0, 0)`;
 
                 AudioEngine.win(); 
