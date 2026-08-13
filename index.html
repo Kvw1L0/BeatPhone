@@ -44,7 +44,7 @@
             background: var(--dark-bg);
             border: 4px solid var(--brand-color);
             border-radius: 12px; 
-            box-shadow: 0 0 15px rgba(250, 250, 245, 0.829), inset 0 0 10px rgba(252, 238, 9, 0.1);
+            box-shadow: 0 0 15px rgba(252, 238, 9, 0.4), inset 0 0 10px rgba(252, 238, 9, 0.1);
             padding: 30px 20px; width: 90%; max-width: 400px;
             text-align: center; position: relative;
         }
@@ -71,34 +71,34 @@
             border: 2px solid var(--brand-color); border-radius: 8px; 
             cursor: pointer; text-transform: uppercase; margin-top: 15px;
             font-family: 'Press Start 2P', cursive;
-            box-shadow: 0 5px 0px #f0f0edd3; transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 5px 0px #b5aa05; transition: transform 0.1s, box-shadow 0.1s;
         }
-        button:active { transform: translateY(5px); box-shadow: 0 0px 0px #f5f5f3d3; }
-        button:disabled { opacity: 0.7; cursor: not-allowed; transform: translateY(0); box-shadow: 0 5px 0px #fafaf9d3; }
+        button:active { transform: translateY(5px); box-shadow: 0 0px 0px #b5aa05; }
+        button:disabled { opacity: 0.7; cursor: not-allowed; transform: translateY(0); box-shadow: 0 5px 0px #b5aa05; }
 
         .btn-secondary {
             background: #111; color: var(--brand-color);
             border: 2px solid var(--brand-color);
-            box-shadow: 0 5px 0px rgba(253, 253, 253, 0.836); margin-top: 25px;
+            box-shadow: 0 5px 0px rgba(252, 238, 9, 0.3); margin-top: 25px;
         }
 
         .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 0.7rem; line-height: 1.6; }
-        .instruction-icon { font-size: 1.5rem; margin-right: 15px; background: #222; border-radius: 8px; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(250, 250, 249, 0.3); }
+        .instruction-icon { font-size: 1.5rem; margin-right: 15px; background: #222; border-radius: 8px; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(252, 238, 9, 0.3); }
 
+        /* --- PROPORCIONES DE GUITARRA AMPLIADAS --- */
         .logo-wrapper { 
             position: relative; 
-            width: 89vw; 
-            max-width: 245px; 
-            height: 67vh; 
-            margin-top: 22vh; 
+            width: 80vw; 
+            max-width: 450px; 
+            height: 60vh; 
+            margin-top: 20vh; 
             display: none; 
             z-index: 10; 
         }
         
-        /* --- NUEVO: Silueta Roja Oscura --- */
         .silhouette-img {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #4A0000; /* Color rojo oscuro */
+            background-color: #4A0000; 
             -webkit-mask-image: url('logo.png');
             -webkit-mask-size: contain;
             -webkit-mask-position: center;
@@ -107,7 +107,7 @@
             mask-size: contain;
             mask-position: center;
             mask-repeat: no-repeat;
-            z-index: 1; /* Por debajo de la imagen a color */
+            z-index: 1; 
         }
 
         .logo-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
@@ -116,7 +116,7 @@
             z-index: 2; opacity: 1; 
             clip-path: inset(100% 0% 0% 0%); 
             -webkit-clip-path: inset(100% 0% 0% 0%);
-            filter: drop-shadow(0 0 25px rgba(252, 238, 9, 0.9));
+            /* Eliminado el resplandor amarillo para un corte transparente */
             transform: translate3d(0,0,0);
         }
 
@@ -176,7 +176,6 @@
     </div>
 
     <div id="game-container" class="logo-wrapper">
-        <!-- Silueta generada dinámicamente -->
         <div class="silhouette-img"></div>
         <img src="logo.png" id="full-image" class="logo-img full-color" alt="Logo Relleno Color">
     </div>
@@ -240,11 +239,9 @@
                     this.guitarSource.start();
                 },
                 
-                // ACTUALIZACIÓN DE AUDIO: Ahora recibe si el jugador está agitando o no
                 updateCrescendo: function(percentage, isShaking = true) {
                     if (this.gainNode && this.ctx) {
                         const targetVolume = isShaking ? Math.pow(percentage, 2) : 0; 
-                        // SetTargetAtTime hace una transición suave, evitando cortes abruptos o clicks en el sonido
                         this.gainNode.gain.setTargetAtTime(targetVolume, this.ctx.currentTime, 0.15);
                     }
                 },
@@ -360,11 +357,10 @@
                 ui.fullImage.style.webkitClipPath = `inset(100% 0% 0% 0%)`;
 
                 AudioEngine.startGuitar();
-                AudioEngine.updateCrescendo(0, false); // Empieza en silencio
+                AudioEngine.updateCrescendo(0, false);
 
                 if(navigator.vibrate) {
                     hapticIntervalId = setInterval(() => {
-                        // Solo vibra si está activamente agitando el celular
                         if(state.active && state.isShaking) {
                             let vibDuration = Math.floor(5 + (state.progress * 40));
                             navigator.vibrate(vibDuration);
@@ -397,7 +393,6 @@
             const addBeat = (amount) => {
                 state.beats += amount;
 
-                // Lógica de detección de actividad
                 state.isShaking = true;
                 if (state.shakeTimeout) clearTimeout(state.shakeTimeout);
 
@@ -420,14 +415,12 @@
                     });
                 }
 
-                // Sube el volumen al nivel que corresponde
                 AudioEngine.updateCrescendo(state.progress, true);
 
-                // Si pasan 300ms sin movimiento nuevo, asumimos que se detuvo
                 state.shakeTimeout = setTimeout(() => {
                     if (state.active) {
                         state.isShaking = false;
-                        AudioEngine.updateCrescendo(state.progress, false); // Baja volumen suavemente
+                        AudioEngine.updateCrescendo(state.progress, false); 
                     }
                 }, 300);
 
