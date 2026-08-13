@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Desafío Jungle</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
 
@@ -13,27 +13,29 @@
             --bg-image: url('fondo.png'); 
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0; font-family: 'Montserrat', sans-serif;
             display: flex; justify-content: center; align-items: center;
             height: 100vh; width: 100vw; overflow: hidden;
-            user-select: none; -webkit-tap-highlight-color: transparent;
+            user-select: none; 
             background-color: #000; background-image: var(--bg-image);
             background-size: cover; background-position: center; background-repeat: no-repeat;
         }
 
-        /* --- EFECTO VISUAL DE CRESCENDO (Resplandor de bordes) --- */
+        /* Efecto de compensación visual */
         #edge-glow {
             position: fixed; inset: 0; pointer-events: none; z-index: 90;
             box-shadow: inset 0 0 0px rgba(255, 0, 0, 0);
             transition: box-shadow 0.1s ease-out;
+            will-change: box-shadow;
         }
 
         .overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px); display: flex; flex-direction: column;
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 100;
             transition: opacity 0.4s ease, transform 0.4s ease;
         }
@@ -71,24 +73,24 @@
             box-shadow: 0 5px 0px #b5aa05; transition: transform 0.1s, box-shadow 0.1s;
         }
         button:active { transform: translateY(5px); box-shadow: 0 0px 0px #b5aa05; }
+        button:disabled { opacity: 0.7; cursor: not-allowed; transform: translateY(0); box-shadow: 0 5px 0px #b5aa05; }
 
         .btn-secondary {
             background: #111; color: var(--brand-color);
             border: 2px solid var(--brand-color);
             box-shadow: 0 5px 0px rgba(252, 238, 9, 0.3); margin-top: 25px;
         }
-        .btn-secondary:active { box-shadow: 0 0px 0px rgba(252, 238, 9, 0.3); }
 
         .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 1rem; }
         .instruction-icon { font-size: 2rem; margin-right: 15px; background: #222; border-radius: 50%; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(252, 238, 9, 0.3); }
 
-        /* --- AJUSTE DE PROPORCIONES DE LA GUITARRA --- */
+        /* Ajuste de Guitarra (30% menor) */
         .logo-wrapper { 
             position: relative; 
-            width: 80vw; 
-            max-width: 350px; 
-            height: 60vh; 
-            margin-top: 18vh; /* Baja la guitarra para no tapar el HITS */
+            width: 56vw; 
+            max-width: 245px; 
+            height: 42vh; 
+            margin-top: 22vh; 
             display: none; 
             z-index: 10; 
         }
@@ -97,9 +99,12 @@
 
         .full-color {
             z-index: 2; opacity: 1; 
-            clip-path: inset(100% 0 0 0); -webkit-clip-path: inset(100% 0 0 0);
-            transform: translateZ(0); will-change: clip-path;
-            filter: drop-shadow(0 0 25px rgba(252, 238, 9, 0.9)); 
+            /* Uso estricto de porcentajes para iOS Safari */
+            clip-path: inset(100% 0% 0% 0%); 
+            -webkit-clip-path: inset(100% 0% 0% 0%);
+            filter: drop-shadow(0 0 25px rgba(252, 238, 9, 0.9));
+            /* Forzar renderizado por hardware en iOS */
+            transform: translate3d(0,0,0);
         }
 
         .big-text { font-size: 3.5rem; margin: 10px 0; font-weight: 900; color: var(--brand-color); }
@@ -108,12 +113,10 @@
         @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
 
         #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 200; }
-        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <!-- Capa de resplandor visual dinámico -->
     <div id="edge-glow"></div>
 
     <div id="screen-form" class="overlay">
@@ -151,11 +154,9 @@
             <h2>¡Misión Completa!</h2>
             <p style="color: white; font-size:1.2rem; margin:0;">Tu tiempo fue:</p>
             <p class="big-text" id="final-time">0.00s</p>
-
             <div style="background: rgba(252, 238, 9, 0.1); border: 1px solid var(--brand-color); border-radius: 10px; padding: 15px; margin: 15px 0;">
-                <p id="rank-text" style="color: var(--brand-color); font-size: 1.1rem; font-weight: bold; margin: 0; animation: pulse 0.8s infinite alternate;">Calculando tu posición...</p>
+                <p id="rank-text" style="color: var(--brand-color); font-size: 1.1rem; font-weight: bold; margin: 0;">Calculando tu posición...</p>
             </div>
-
             <button onclick="window.location.href='ranking.html'" class="btn-secondary">🏆 VER RANKING</button>
             <button onclick="location.reload()">JUGAR DE NUEVO</button>
         </div>
@@ -177,22 +178,30 @@
                 minTimePossible: 2.0 
             });
 
-            // MOTOR DE AUDIO (Web Audio API para MP3 in crescendo)
+            // Motor de Audio Blindado para iOS
             const AudioEngine = {
                 ctx: null, gainNode: null, guitarBuffer: null, guitarSource: null,
                 
                 init: async function() { 
                     if (!this.ctx) {
-                        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                        const AudioContext = window.AudioContext || window.webkitAudioContext;
+                        this.ctx = new AudioContext();
                         this.gainNode = this.ctx.createGain();
                         this.gainNode.gain.value = 0; 
                         this.gainNode.connect(this.ctx.destination);
                         
                         try {
-                            const response = await fetch('riff_guitarra.mp3'); // Asegúrate de tener este archivo en tu servidor
+                            const response = await fetch('riff_guitarra.mp3'); 
                             const arrayBuffer = await response.arrayBuffer();
-                            this.guitarBuffer = await this.ctx.decodeAudioData(arrayBuffer);
+                            // Decode robusto para iOS Safari antiguo y moderno
+                            this.guitarBuffer = await new Promise((resolve, reject) => {
+                                this.ctx.decodeAudioData(arrayBuffer, resolve, reject);
+                            });
                         } catch (error) { console.error("Error cargando MP3:", error); }
+                    }
+                    // Forzar el despertar de Safari
+                    if (this.ctx.state === 'suspended') {
+                        await this.ctx.resume();
                     }
                 },
                 
@@ -222,12 +231,15 @@
                 updateCrescendo: function(percentage) {
                     if (this.gainNode && this.ctx) {
                         const volume = Math.pow(percentage, 2); 
+                        // Set target previene clics de audio abruptos
                         this.gainNode.gain.setTargetAtTime(volume, this.ctx.currentTime, 0.1);
                     }
                 },
                 
                 stopGuitar: function() {
-                    if (this.guitarSource) this.guitarSource.stop();
+                    if (this.guitarSource) {
+                        try { this.guitarSource.stop(); } catch(e){}
+                    }
                 },
                 
                 win: function() { 
@@ -261,7 +273,7 @@
             function syncOfflineData() {
                 let pending = JSON.parse(localStorage.getItem("jungle_pending") || "[]");
                 if (pending.length > 0) {
-                    pending.forEach(p => fetch(CONFIG.webhookUrl, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(p) }));
+                    pending.forEach(p => fetch(CONFIG.webhookUrl, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(p) }).catch(()=>{}));
                     localStorage.removeItem("jungle_pending");
                 }
             }
@@ -276,14 +288,32 @@
                 const name = ui.nameInput.value.trim();
                 if(!name) return alert("Por favor, ingresa tu nombre para jugar.");
                 state.name = name;
+                ui.btnNext.disabled = true;
                 switchScreen(ui.screenForm, ui.screenInst);
             };
 
             ui.btnStart.onclick = async () => {
+                ui.btnStart.disabled = true; // Previene doble submit
+
+                // Inicialización de audio en el frame de interacción de usuario (Requisito estricto iOS)
                 await AudioEngine.init();
+
+                // Solicitud explícita de sensores para iOS 13+
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    try { const resp = await DeviceMotionEvent.requestPermission(); } catch (e) { }
+                    try { 
+                        const permissionState = await DeviceMotionEvent.requestPermission();
+                        if (permissionState !== 'granted') {
+                            alert("¡Atención! Debes permitir el acceso al acelerómetro de tu dispositivo para poder participar.");
+                            ui.btnStart.disabled = false;
+                            return; 
+                        }
+                    } catch (e) {
+                        alert("Error al solicitar permisos del sensor. Intenta recargar la página.");
+                        ui.btnStart.disabled = false;
+                        return;
+                    }
                 }
+
                 ui.screenInst.classList.add("hidden");
                 setTimeout(startCountdown, 400);
             };
@@ -316,12 +346,11 @@
             function startGame() {
                 state.active = true; state.start = Date.now(); state.beats = 0; state.progress = 0;
                 
-                ui.fullImage.style.clipPath = `inset(100% 0 0 0)`;
-                ui.fullImage.style.webkitClipPath = `inset(100% 0 0 0)`;
+                ui.fullImage.style.clipPath = `inset(100% 0% 0% 0%)`;
+                ui.fullImage.style.webkitClipPath = `inset(100% 0% 0% 0%)`;
 
                 AudioEngine.startGuitar();
 
-                // HAPTIC RÍTMICO
                 if(navigator.vibrate) {
                     hapticIntervalId = setInterval(() => {
                         if(state.active) {
@@ -331,18 +360,22 @@
                     }, 250); 
                 }
 
-                window.addEventListener("devicemotion", handleMotion);
+                window.addEventListener("devicemotion", handleMotion, true);
+                ui.gameContainer.addEventListener("touchstart", handleTap, {passive: false});
                 ui.gameContainer.addEventListener("click", handleTap);
             }
 
             const handleMotion = (e) => {
                 if (!state.active) return;
-                const acc = e.acceleration;
+                let acc = e.acceleration || e.accelerationIncludingGravity; // Respaldo para algunos dispositivos
+                if(!acc) return;
+
                 const force = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
                 if (force > CONFIG.threshold) addBeat(1);
             };
 
-            const handleTap = () => {
+            const handleTap = (e) => {
+                if(e && e.cancelable) e.preventDefault(); // Evita doble disparo en móviles
                 if (!state.active) return;
                 const now = Date.now();
                 if(now - state.lastBeatTime < 50) return; 
@@ -353,15 +386,19 @@
                 state.beats += amount;
 
                 state.progress = Math.min(state.beats / CONFIG.targetBeats, 1.0);
-                const clip = 100 - (state.progress * 100);
+                // Aseguramos que clip no baje de 0
+                const clip = Math.max(0, 100 - (state.progress * 100));
 
                 if (!animationPending) {
                     animationPending = true;
                     requestAnimationFrame(() => {
-                        ui.fullImage.style.clipPath = `inset(${clip}% 0 0 0)`;
-                        ui.fullImage.style.webkitClipPath = `inset(${clip}% 0 0 0)`;
+                        // Forzamos la actualización visual estricta para Safari
+                        ui.fullImage.style.clipPath = `inset(${clip}% 0% 0% 0%)`;
+                        ui.fullImage.style.webkitClipPath = `inset(${clip}% 0% 0% 0%)`;
                         
-                        // Resplandor en los bordes
+                        // Hack para obligar a Safari a repintar el nodo
+                        void ui.fullImage.offsetHeight; 
+                        
                         let glowSpread = state.progress * 120; 
                         let glowAlpha = state.progress * 0.8;  
                         ui.edgeGlow.style.boxShadow = `inset 0 0 ${glowSpread}px rgba(255, 0, 0, ${glowAlpha})`;
