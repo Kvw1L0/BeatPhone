@@ -8,7 +8,7 @@
 
     <style>
         :root {
-            --brand-color: #FF0000; 
+            --brand-color: #0400ff; 
             --dark-bg: rgba(10, 10, 10, 0.95);
             --bg-image: url('fondo.png'); 
         }
@@ -203,7 +203,7 @@
                         this.gainNode.connect(this.ctx.destination);
                         
                         try {
-                            const response = await fetch('riff_guitarra.mp3'); 
+                            const response = await fetch('estadio.mp3'); 
                             const arrayBuffer = await response.arrayBuffer();
                             this.guitarBuffer = await new Promise((resolve, reject) => {
                                 this.ctx.decodeAudioData(arrayBuffer, resolve, reject);
