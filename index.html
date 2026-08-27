@@ -10,7 +10,7 @@
         :root {
             --brand-color:  #00b2ed; 
             --dark-bg: #011449;
-            --text-glow: 0 0 15px #006ab9;
+        --text-glow: 0 0 15px #006ab9;
             --bg-image: url('fondo.png'); 
         }
 
@@ -45,7 +45,7 @@
             background: var(--dark-bg);
             border: 4px solid var(--brand-color);
             border-radius: 12px; 
-            box-shadow: 0 0 15px rgba(252, 238, 9, 0.4), inset 0 0 10px rgba(252, 238, 9, 0.1);
+            box-shadow: 0 0 15px #006ab9;, inset 0 0 10px rgba(252, 238, 9, 0.1);
             padding: 30px 20px; width: 90%; max-width: 400px;
             text-align: center; position: relative;
         }
@@ -72,15 +72,15 @@
             border: 2px solid var(--brand-color); border-radius: 8px; 
             cursor: pointer; text-transform: uppercase; margin-top: 15px;
             font-family: 'Press Start 2P', cursive;
-            box-shadow: 0 5px 0px #b5aa05; transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 5px 0px #006ab9;; transition: transform 0.1s, box-shadow 0.1s;
         }
-        button:active { transform: translateY(5px); box-shadow: 0 0px 0px #b5aa05; }
+        button:active { transform: translateY(5px); box-shadow: 0 0px 0px #006ab9;; }
         button:disabled { opacity: 0.7; cursor: not-allowed; transform: translateY(0); box-shadow: 0 5px 0px #b5aa05; }
 
         .btn-secondary {
             background: #111; color: var(--brand-color);
             border: 2px solid var(--brand-color);
-            box-shadow: 0 5px 0px rgba(252, 238, 9, 0.3); margin-top: 25px;
+            box-shadow: 0 5px 0px #006ab9; margin-top: 25px;
         }
 
         .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 0.7rem; line-height: 1.6; }
@@ -99,7 +99,7 @@
         
         .silhouette-img {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #4A0000; 
+            background-color: #000000; 
             -webkit-mask-image: url('logo.png');
             -webkit-mask-size: contain;
             -webkit-mask-position: center;
