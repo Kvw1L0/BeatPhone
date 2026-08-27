@@ -10,9 +10,9 @@
 <style>
   /* ================= CONFIGURACIÓN VISUAL ================= */
   :root {
-    --brand-color:  #FF0000; 
-    --dark-bg: #000000;
-    --text-glow: 0 0 15px rgba(252, 238, 9, 0.6);
+    --brand-color:  #00b2ed; 
+    --dark-bg: #011449;
+    --text-glow: 0 0 15px #006ab9;
   }
 
   body {
@@ -83,7 +83,7 @@
     align-items: center;
     padding: 15px;
     font-size: 0.8rem; 
-    border-bottom: 1px solid rgba(252, 9, 9, 0.5);
+    border-bottom: 1px solid --brand-color;
     animation: fadeIn 0.5s ease-out;
   }
 
@@ -101,7 +101,7 @@
     overflow: hidden; 
     text-overflow: ellipsis; 
   }
-  .rank-time { color: #FCEE09; }
+  .rank-time { color: var(--brand-color); }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
