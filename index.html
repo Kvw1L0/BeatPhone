@@ -84,7 +84,7 @@
         }
 
         .instruction-item { display: flex; align-items: center; text-align: left; margin-bottom: 20px; color: #fff; font-size: 0.7rem; line-height: 1.6; }
-        .instruction-icon { font-size: 1.5rem; margin-right: 15px; background: #222; border-radius: 8px; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px rgba(252, 238, 9, 0.3); }
+        .instruction-icon { font-size: 1.5rem; margin-right: 15px; background: #222; border-radius: 8px; padding: 10px; border: 1px solid var(--brand-color); box-shadow: 0 0 10px --brand-color; }
 
         /* --- PROPORCIONES DE GUITARRA AMPLIADAS (+40%) --- */
         .logo-wrapper { 
@@ -412,7 +412,7 @@
                         
                         let glowSpread = state.progress * 120; 
                         let glowAlpha = state.progress * 0.8;  
-                        ui.edgeGlow.style.boxShadow = `inset 0 0 ${glowSpread}px rgba(255, 0, 0, ${glowAlpha})`;
+                        ui.edgeGlow.style.boxShadow = `inset 0 0 ${glowSpread}px rgba(0, 0, 256, ${glowAlpha})`;
 
                         animationPending = false;
                     });
