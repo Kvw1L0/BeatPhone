@@ -411,8 +411,8 @@
                         void ui.fullImage.offsetHeight; 
                         
                         let glowSpread = state.progress * 120; 
-                        let glowAlpha = state.progress * 0.8;  
-                        ui.edgeGlow.style.boxShadow = `inset 0 0 ${glowSpread}px rgba(0, 255, 0, ${glowAlpha})`;
+                        let glowAlpha = state.progress * 1.4;  
+                        ui.edgeGlow.style.boxShadow = `inset 0 0 ${glowSpread}px rgba(0, 0, 255, ${glowAlpha})`;
 
                         animationPending = false;
                     });
